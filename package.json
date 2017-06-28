@@ -1,0 +1,26 @@
+{
+  "name": "shop",
+  "version": "1.0.0",
+  "description": "积分商城",
+  "main": "index.js",
+  "scripts": {
+    "start": "node8 ./bin/www.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@code.aliyun.com:xueersi/shop.git"
+  },
+  "author": "uames",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.3.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-json": "^2.0.2",
+    "koa-logger": "^3.0.0",
+    "koa-onerror": "^3.1.0",
+    "koa-router": "^7.2.1",
+    "koa-static": "^3.0.0",
+    "koa-views": "^6.0.2"
+  }
+}
