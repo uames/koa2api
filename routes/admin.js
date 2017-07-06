@@ -1,7 +1,9 @@
 const router = require('koa-router')()
-const rst = require('../utils/result')
+const Rst = require('../utils/result')
 const DIR = process.env.DIR || '';
-router.prefix(DIR + '/users');
+
+router.prefix(DIR + '/admin');
+const { login, AdminSession } = require('../utils/models/admin')
 
 // router.get('/', async (ctx, next) => {
 //     ctx.response.body = `<h1>Index</h1>
@@ -24,14 +26,16 @@ router.prefix(DIR + '/users');
 //     }
 // });
 router.post('/login', async (ctx, next) => {
-    var name = ctx.request.body.name || '',
+    var account = ctx.request.body.account || '',
         password = ctx.request.body.password || '';
-    console.log(`signin with name: ${name}, password: ${password}`);
-    if (name === 'koa' && password === '12345') {
-        ctx.response.body = `<h1>Welcome, ${name}!</h1>`;
-    } else {
-        ctx.response.body = `<h1>Login failed!</h1>
-        <p><a href="${DIR}/users">Try again</a></p>`;
+    var admin = await login({account, password});
+    if(admin && admin.id){
+      // const n = ctx.cookies.get('shop-sessionid');
+      ctx.cookies.set(AdminSession, admin.id);
+      ctx.response.body = Rst.suc()
+    }else {
+      ctx.response.body = Rst.fail("帐号或密码错误")
     }
+
 });
 module.exports = router
