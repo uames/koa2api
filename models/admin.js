@@ -1,5 +1,5 @@
-const {Sequelize, defineModel} = require('../mysql')
-const Rst = require('../result')
+import {Sequelize, defineModel} from '../utils/mysql'
+import Rst from '../utils/result'
 
 const dbAdmin = {
   id : {type : Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey : true, unique : true},
@@ -27,7 +27,7 @@ const build = ()=>{
 var IDS = {}; // 已登录的管理员对象列表,程序或服务器重启会导致用户掉线(已修改,见 TAG[00002])
 const operateIDS = (admin, login)=>{
   if(login){
-    IDS[admin.id] = admin;
+    IDS[admin.id] = {id:admin.id, sid: admin.sid, sign: admin.sign}; // 将已登录的帐号保存于此,避免每次检查都到数据库中查找
   }else {
     delete IDS[admin.id]
   }
@@ -84,11 +84,11 @@ const logout = (ctx)=>{
 const AdminSession = "admin-sessionid";
 module.exports = {
   dbAdmin: _dbAdmin,
-  build: build,
-  Admin: Admin,
-  login: login,
-  logout: logout,
-  AdminSession : AdminSession,
-  getAdminBySession: getAdminBySession,
-  checkAdminLogin: checkAdminLogin
+  build,
+  Admin,
+  login,
+  logout,
+  AdminSession,
+  getAdminBySession,
+  checkAdminLogin
 }

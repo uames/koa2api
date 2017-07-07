@@ -10,7 +10,8 @@ const fail = (msg,code)=>{
     msg: msg || '未定义错误信息'
   }
 }
+
 module.exports = {
-  suc: suc,
-  fail: fail
+  suc,
+  fail
 }

@@ -1,11 +1,14 @@
+import Rst from '../utils/result';
+import { getQuery } from '../service/user';
+import {dbItems, getItem, getItems, createItem, updateItem, deleteItems, shelfItems } from '../models/items';
+import { getAdminBySession, checkAdminLogin as checkALogin, AdminSession } from '../models/admin';
+import { getUserBySession, checkUserLogin as checkULogin, UserSession } from '../models/users';
+
 const router = require('koa-router')()
-const Rst = require('../utils/result')
 const DIR = process.env.DIR || '';
 
 router.prefix(DIR + '/items');
-const {dbItems, getItem, getItems, createItem, updateItem, deleteItems, shelfItems } = require('../utils/models/items')
-const { getAdminBySession, checkAdminLogin: checkALogin, AdminSession } = require('../utils/models/admin')
-const { getUserBySession, checkUserLogin: checkULogin, UserSession } = require('../utils/models/users')
+
 
 
 const postItem = {
@@ -21,7 +24,7 @@ const postItem = {
   cat_id : 0,
   status : 0,
   buycount : 0,
-  sid : 0
+  sid : 2
 }
 // 接口说明 items/show
 const show = ()=>{
@@ -37,30 +40,7 @@ const show = ()=>{
     "DEL  /items" : {参数:{"body中的数据":"[要删除的id数组]"}, 成功:{errCode:0},失败:{errCode:1,msg:"失败原因"}}
   }
 }
-// 返回当前用户的sid, 先获取管理员的,若未登录管理员帐号则获取普通用户的, 若均未登录返回-1
-const getSid = async (cookies)=>{
-  var admin = await getAdminBySession(cookies.get(AdminSession))
-  if(admin && admin.id){
-    return admin.sid;
-  }else {
-    var user = await getUserBySession(cookies.get(UserSession))
-    if(user && user.id){
-      return user.sid
-    }else {
-      return -1;
-    }
-  }
-}
-const getQuery = async (ctx)=>{
-  var sid = await getSid(ctx.cookies), q=ctx.query;
-  // sid 为0 的用户,可以查看所有商品, sid 大于0的用户,可以查看对应的sid和sid==0的商品, sid 为-1的用户,不能查看任何商品
-  if(sid>0){
-    q.where = {sid: {$in: [0,sid]}} // sid 为0的商品,所有 sid>-1 的用户均可查看
-  }else if(sid==-1) {
-    q.where = {sid: {$in: [-999]}}
-  }
-  return q;
-}
+
 router.get('/', async (ctx, next) => {
   var q = await getQuery(ctx)
   ctx.response.body = await getItems({status:1, ...q}); // q.page, q.pSize, q.keyword, q.order
@@ -88,14 +68,11 @@ router.post('/', async (ctx, next) => {
   //   details : body.details,
   //   cat_id : body.details
   // }
-  //
-  var _r = {};
   await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
       var item = await createItem({sid: admin.sid, ...postItem})
       if(item && item.id){
-        _r = Rst.suc()
-        _r.id = item.id
-        ctx.response.body = _r;
+        var _r = Rst.suc()
+        ctx.response.body = {id: item.id, ..._r};
       }
   }});
 });

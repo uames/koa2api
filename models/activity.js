@@ -1,7 +1,6 @@
-const {Sequelize, defineModel} = require('../mysql')
+import {Sequelize, defineModel} from '../uitls/mysql'
 
 const dbUsers = {
-  id : {type : Sequelize.INTEGER, autoIncrement : true, primaryKey : true, unique : true},
   name : {type : Sequelize.STRING, comment : '用户名称'},
   phone : {type: Sequelize.STRING, validate: {isNumeric: true}, comment : '用户手机,同时也是帐号,登录积分商城时,要用到这个帐号' },
   password : {type : Sequelize.STRING, comment : '用户密码,用于积分商城登录'},

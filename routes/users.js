@@ -1,9 +1,9 @@
+import Rst from '../utils/result';
+import { login, logout, UserSession, getUsers } from '../models/users';
 const router = require('koa-router')()
-const Rst = require('../utils/result')
 const DIR = process.env.DIR || '';
 
 router.prefix(DIR + '/users');
-const { login, logout, UserSession } = require('../utils/models/users')
 
 // router.get('/', async (ctx, next) => {
 //     ctx.response.body = `<h1>Index</h1>
@@ -45,14 +45,18 @@ router.get('/jumpLogin/:sign/:account/:checkpwd', async (ctx, next) => {
     ctx.response.body = Rst.fail("帐号或密码错误",401)
   }
 });
-
+router.get('/', async (ctx, next) => {
+  var q = ctx.query //await getQuery(ctx)
+  ctx.response.body = await getUsers(q); // q.page, q.pSize, q.keyword, q.order
+});
 router.post('/login', async (ctx, next) => {
     var account = ctx.request.body.account || '',
         password = ctx.request.body.password || '';
     var user = await login({account: account, password: password});
     if(user && user.id){
       ctx.cookies.set(UserSession, user.id);
-      ctx.response.body = Rst.suc("登录成功")
+      // ctx.response.body = Rst.suc("登录成功")
+      ctx.response.body = user
     }else {
       ctx.response.body = Rst.fail("帐号或密码错误",401)
     }

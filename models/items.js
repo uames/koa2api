@@ -1,7 +1,6 @@
-const {Sequelize, defineModel} = require('../mysql')
+import {Sequelize, defineModel} from '../utils/mysql'
 
 const dbItems = {
-  // id : {type : Sequelize.INTEGER, autoIncrement : true, primaryKey : true, unique : true},
   name : {type : Sequelize.STRING(100), comment : '商品名称'},
   price : {type : Sequelize.INTEGER, comment : '商品价格(多个价格则取最低价)'},
   description : {type : Sequelize.TEXT, comment : '商品描述'},

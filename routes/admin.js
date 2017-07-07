@@ -1,9 +1,9 @@
+import Rst from '../utils/result';
+import { login, logout, AdminSession } from '../models/admin';
 const router = require('koa-router')()
-const Rst = require('../utils/result')
 const DIR = process.env.DIR || '';
 
 router.prefix(DIR + '/admin');
-const { login, logout, AdminSession } = require('../utils/models/admin')
 
 // router.get('/', async (ctx, next) => {
 //     ctx.response.body = `<h1>Index</h1>

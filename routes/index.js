@@ -1,5 +1,5 @@
+import Rst from '../utils/result';
 const router = require('koa-router')()
-const rst = require('../utils/result')
 const DIR = process.env.DIR || '';
 router.prefix(DIR);
 

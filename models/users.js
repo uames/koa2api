@@ -1,8 +1,7 @@
-const {Sequelize, defineModel} = require('../mysql')
-const Rst = require('../result')
+import {Sequelize, defineModel} from '../utils/mysql'
+import Rst from '../utils/result'
 
 const dbUsers = {
-  id : {type : Sequelize.INTEGER, autoIncrement : true, primaryKey : true, unique : true},
   name : {type : Sequelize.STRING, comment : '用户名称'},
   phone : {type: Sequelize.STRING, validate: {isNumeric: true}, comment : '用户手机,同时也是帐号,登录积分商城时,要用到这个帐号' },
   password : {type : Sequelize.STRING, comment : '用户密码,用于积分商城登录'},
@@ -29,11 +28,16 @@ const build = ()=>{
     });
   });
 }
+const rebuildUser = user => {
+  return {id:user.id, sid: user.sid, sign: user.sign, name: user.name, balance: user.balance}
+}
 
 var IDS = {}; // 已登录的管理员对象列表,程序或服务器重启会导致用户掉线 TODO[00001]
 const operateIDS = (user, login)=>{
   if(login){
-    IDS[user.id] = user;
+    // 将已登录的帐号保存于此,避免每次检查都到数据库中查找
+    IDS[user.id] = rebuildUser(user);
+    // IDS[user.id] = user;
   }else {
     delete IDS[user.id]
   }
@@ -50,8 +54,32 @@ const getUserBySession = async (id)=>{
         _user = user;
       }
     })
-    return _user;
+    return rebuildUser(_user);
   }
+}
+const getUsers = async ({page,pSize,keyword,order,status,where})=>{
+  page = Number(page) || 1;
+  pSize = Number(pSize) || 10;
+  var _like = {$like: "%"+keyword+"%"}, items = [];
+  var _where = keyword?{
+    $or: [
+      { name: _like },
+      { phone: _like }
+    ]
+  }:{};
+  if(status==1 || status==0){
+    _where.status = status
+  }
+  _where = {...where, ..._where}
+  await Items.findAll({
+    where: _where,
+    order: order?[order.split(/\s+/)]:"",// order: 'title DESC',
+    offset: (page-1) * pSize,
+    limit: pSize
+  }).then(res => {
+    items = res;
+  });
+  return items;
 }
 
 const login = async ({account, password, checkpwd, sign})=>{
@@ -69,7 +97,7 @@ const login = async ({account, password, checkpwd, sign})=>{
     }
     _user = user;
   })
-  return _user;
+  return rebuildUser(_user);
 }
 const logout = (ctx)=>{
   var id = ctx.cookies.get(UserSession)

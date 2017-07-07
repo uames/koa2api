@@ -1,5 +1,5 @@
-const Sequelize = require('sequelize')
-const fs = require('fs')
+import Sequelize from 'sequelize'
+import fs from 'fs'
 
 let name = 'root', pwd = '123456', host = '127.0.0.1';
 if(process.env.NODE_ENV=='production'){
@@ -17,7 +17,7 @@ const sequelize = new Sequelize('shop', name, pwd, {
     idle: 10000
   }
 });
-
+const cwd = process.cwd()
 const connect = ()=>{
   sequelize
     .authenticate()
@@ -25,10 +25,12 @@ const connect = ()=>{
       console.log('Connection has been established successfully.');
       // scan tables and build
       if(process.env.BuildTables){
-        var files = fs.readdirSync(__dirname + '/models');
+        var files = fs.readdirSync(cwd + '/models');
+        // var files = fs.readdirSync(__dirname + '/models');
         for (var f of files) {
             console.log(`build table: ${f}...`);
-            let table = require(__dirname + '/models/' + f)
+            let table = require(cwd + '/models/' + f)
+            // let table = require(__dirname + '/models/' + f)
             table.build();
         }
       }
@@ -85,8 +87,8 @@ const defineModel = (name, attributes)=>{
     });
 }
 module.exports = {
-  connect: connect,
-  Sequelize: Sequelize,
-  sequelize: sequelize,
-  defineModel: defineModel
+  connect,
+  Sequelize,
+  sequelize,
+  defineModel
 }
