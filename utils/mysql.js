@@ -50,7 +50,7 @@ const defineModel = (name, attributes)=>{
             };
         }
     }
-    attrs.id = {type : Sequelize.INTEGER, autoIncrement : true, primaryKey : true, unique : true};
+    attrs.id = attrs.id? attrs.id:{type : Sequelize.INTEGER, autoIncrement : true, primaryKey : true, unique : true};
     attrs.createdAt = {
         type: Sequelize.BIGINT,
         allowNull: false

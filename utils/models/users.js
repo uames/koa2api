@@ -1,4 +1,5 @@
 const {Sequelize, defineModel} = require('../mysql')
+const Rst = require('../result')
 
 const dbUsers = {
   id : {type : Sequelize.INTEGER, autoIncrement : true, primaryKey : true, unique : true},
@@ -37,7 +38,7 @@ const operateIDS = (user, login)=>{
     delete IDS[user.id]
   }
 }
-const checkLogin = async (id)=>{
+const getUserBySession = async (id)=>{
   if(IDS[id] && IDS[id].id){
     return IDS[id];
   }else {
@@ -53,9 +54,16 @@ const checkLogin = async (id)=>{
   }
 }
 
-const login = async ({account, password})=>{
-  var _user = {};
-  await Users.findOne({ where: {account: account, password: password} }).then(user => {
+const login = async ({account, password, checkpwd, sign})=>{
+  var _user = {}, where = {phone: account};
+  if(password && password.length > 5){
+    where.password = password
+  }else {
+    where.sign = sign; // 若为跳转登录,则还需要用到 sign
+    where.checkpwd = checkpwd
+  }
+
+  await Users.findOne({ where: where }).then(user => {
     if(user && user.id){
       operateIDS(user, true)
     }
@@ -63,12 +71,20 @@ const login = async ({account, password})=>{
   })
   return _user;
 }
+const logout = (ctx)=>{
+  var id = ctx.cookies.get(UserSession)
+  operateIDS({id},false);
+  ctx.cookies.set(UserSession, null);
+  return true;
+}
+const UserSession = "user-sessionid"
 
 module.exports = {
   dbUsers: _dbUsers,
   build: build,
   Users: Users,
-  UserSession : "user-sessionid",
+  UserSession : UserSession,
   login: login,
-  checkLogin: checkLogin
+  logout: logout,
+  getUserBySession: getUserBySession
 }

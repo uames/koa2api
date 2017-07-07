@@ -1,7 +1,9 @@
 const router = require('koa-router')()
-const rst = require('../utils/result')
+const Rst = require('../utils/result')
 const DIR = process.env.DIR || '';
+
 router.prefix(DIR + '/users');
+const { login, logout, UserSession } = require('../utils/models/users')
 
 // router.get('/', async (ctx, next) => {
 //     ctx.response.body = `<h1>Index</h1>
@@ -12,7 +14,7 @@ router.prefix(DIR + '/users');
 //         </form>`;
 // });
 
-// router.post('/signin', async (ctx, next) => {
+// router.post('/login', async (ctx, next) => {
 //     var name = ctx.request.body.name || '',
 //         password = ctx.request.body.password || '';
 //     console.log(`signin with name: ${name}, password: ${password}`);
@@ -23,15 +25,43 @@ router.prefix(DIR + '/users');
 //         <p><a href="${DIR}/users">Try again</a></p>`;
 //     }
 // });
+// const rLogin = async (ctx, params)=>{
+//   var user = await login(params);
+//   if(user && user.id){
+//     ctx.cookies.set(UserSession, user.id);
+//     ctx.response.body = Rst.suc()
+//   }else {
+//     ctx.response.body = Rst.fail("帐号或密码错误")
+//   }
+// }
+// 跳转登录需要有三个参数,sign account checkpwd, 缺一不可
+router.get('/jumpLogin/:sign/:account/:checkpwd', async (ctx, next) => {
+  // await rLogin(ctx,{account: ctx.params.account, checkpwd: ctx.params.checkpwd});
+  var user = await login({account: ctx.params.account, checkpwd: ctx.params.checkpwd, sign:ctx.params.sign});
+  if(user && user.id){
+    ctx.cookies.set(UserSession, user.id);
+    ctx.response.body = Rst.suc("跳转登录成功") // TODO 这里就应该跳转进入登录后的页面了
+  }else {
+    ctx.response.body = Rst.fail("帐号或密码错误",401)
+  }
+});
+
 router.post('/login', async (ctx, next) => {
-    var name = ctx.request.body.name || '',
+    var account = ctx.request.body.account || '',
         password = ctx.request.body.password || '';
-    console.log(`signin with name: ${name}, password: ${password}`);
-    if (name === 'koa' && password === '12345') {
-        ctx.response.body = `<h1>Welcome, ${name}!</h1>`;
-    } else {
-        ctx.response.body = `<h1>Login failed!</h1>
-        <p><a href="${DIR}/users">Try again</a></p>`;
+    var user = await login({account: account, password: password});
+    if(user && user.id){
+      ctx.cookies.set(UserSession, user.id);
+      ctx.response.body = Rst.suc("登录成功")
+    }else {
+      ctx.response.body = Rst.fail("帐号或密码错误",401)
+    }
+});
+router.post('/logout', async (ctx, next) => {
+    if(logout(ctx)){
+      ctx.response.body = Rst.suc()
+    }else {
+      ctx.response.body = Rst.fail("退出失败")
     }
 });
 module.exports = router

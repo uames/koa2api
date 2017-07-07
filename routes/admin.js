@@ -3,7 +3,7 @@ const Rst = require('../utils/result')
 const DIR = process.env.DIR || '';
 
 router.prefix(DIR + '/admin');
-const { login, AdminSession } = require('../utils/models/admin')
+const { login, logout, AdminSession } = require('../utils/models/admin')
 
 // router.get('/', async (ctx, next) => {
 //     ctx.response.body = `<h1>Index</h1>
@@ -36,6 +36,12 @@ router.post('/login', async (ctx, next) => {
     }else {
       ctx.response.body = Rst.fail("帐号或密码错误")
     }
-
+});
+router.post('/logout', async (ctx, next) => {
+  if(logout(ctx)){
+    ctx.response.body = Rst.suc()
+  }else {
+    ctx.response.body = Rst.fail("退出失败")
+  }
 });
 module.exports = router

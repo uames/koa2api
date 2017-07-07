@@ -68,17 +68,27 @@ const getItems = async ({page,pSize,keyword,order,status,where})=>{
   return items;
 }
 const initItem = (item)=>{
-  if(Number(item.price)>-1){
-
+  if(isNaN(item.price)){
+    var spec = JSON.parse(item.specifications);
+    item.price=spec&&spec[0]?spec[0].price:0;
+    if(item.price>0){
+      for(var s in spec){
+        if(spec[s].price<item.price){
+          item.price = spec[s].price
+        }
+      }
+    }
   }
+  return item;
 }
 const createItem = async (item)=>{
-  initItem(item)
+  item = initItem(item)
   return await Items.create(item);
 }
 const updateItem = async (item)=>{
+  item = initItem(item)
   var id = item.id, rst=[];
-  delete item.id;
+  // delete item.id;
   await Items.update(
     { ...item }, /* set attributes' value */
     { where: { id: id }} /* where criteria */
@@ -97,7 +107,8 @@ const deleteItems = async ids=>{
   });
   return rst;
 }
-const shelfItems = async (ids, status)=>{var rst=[];
+const shelfItems = async (ids, status)=>{
+  var rst=[];
   await Items.update(
     { status: status }, /* set attributes' value */
     { where: { id: {$in: ids} }}/* where criteria */

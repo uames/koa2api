@@ -4,13 +4,12 @@ const DIR = process.env.DIR || '';
 
 router.prefix(DIR + '/items');
 const {dbItems, getItem, getItems, createItem, updateItem, deleteItems, shelfItems } = require('../utils/models/items')
-const { checkLogin : checkAdminLogin, AdminSession } = require('../utils/models/admin')
-const { checkLogin : checkUserLogin, UserSession } = require('../utils/models/users')
+const { getAdminBySession, checkAdminLogin: checkALogin, AdminSession } = require('../utils/models/admin')
+const { getUserBySession, checkUserLogin: checkULogin, UserSession } = require('../utils/models/users')
 
 
 const postItem = {
   name: '艾美特(Airmate) FSW52R 遥控落地扇/电风扇',
-  price : 179,
   description: '【京东自营-艾美特专注电风扇44年】累计销量120万台！超30万消费者参与好评！大风量超静音，5米智能遥控，3档风量调节，静音睡眠风，一级能效！电机十年包用！好风扇就选艾美特！',
   specifications : JSON.stringify([{"name":"【五叶遥控款】","price":"239","store":"200","img":"[]"},{"name":"【京东机皇-累计销量120万台】","price":"179","store":"100","img":"[]"}]),
   details : `厂家服务
@@ -34,15 +33,17 @@ const show = ()=>{
     "GET  /items/:id" : {example: "/items/1", "成功":{id:1, ...postItem}, "备注":"若为空对象{},则表示该id对应的商品不存在"},
     "POST /items" : {参数:postItem, 成功:{errCode:0,id:"新建的商品的id"},失败:{errCode:1,msg:"失败原因"}},
     "PUT  /items" : {参数:postItem, 成功:{errCode:0,id:"新建的商品的id"},失败:{errCode:1,msg:"失败原因"}},
-    "PUT  /items/shelf/:status" : {参数:{"链接中的status":"","body中的数据":"[要上架或下架的id数组]"}, 成功:{errCode:0},失败:{errCode:1,msg:"失败原因"}}
+    "PUT  /items/shelf/:status" : {参数:{"链接中的status":"","body中的数据":"[要上架或下架的id数组]"}, 成功:{errCode:0},失败:{errCode:1,msg:"失败原因"}},
+    "DEL  /items" : {参数:{"body中的数据":"[要删除的id数组]"}, 成功:{errCode:0},失败:{errCode:1,msg:"失败原因"}}
   }
 }
+// 返回当前用户的sid, 先获取管理员的,若未登录管理员帐号则获取普通用户的, 若均未登录返回-1
 const getSid = async (cookies)=>{
-  var admin = await checkAdminLogin(cookies.get(AdminSession))
+  var admin = await getAdminBySession(cookies.get(AdminSession))
   if(admin && admin.id){
     return admin.sid;
   }else {
-    var user = await checkUserLogin(cookies.get(UserSession))
+    var user = await getUserBySession(cookies.get(UserSession))
     if(user && user.id){
       return user.sid
     }else {
@@ -52,10 +53,9 @@ const getSid = async (cookies)=>{
 }
 const getQuery = async (ctx)=>{
   var sid = await getSid(ctx.cookies), q=ctx.query;
-
-  // sid 为0的商品,所有用户均可查看
+  // sid 为0 的用户,可以查看所有商品, sid 大于0的用户,可以查看对应的sid和sid==0的商品, sid 为-1的用户,不能查看任何商品
   if(sid>0){
-    q.where = {sid: {$in: [0,sid]}}
+    q.where = {sid: {$in: [0,sid]}} // sid 为0的商品,所有 sid>-1 的用户均可查看
   }else if(sid==-1) {
     q.where = {sid: {$in: [-999]}}
   }
@@ -70,27 +70,13 @@ router.get('/all', async (ctx, next) => {
   ctx.response.body = await getItems(q); // q.page, q.pSize, q.keyword, q.order
 });
 router.get('/:id', async (ctx, next) => {
+  // TODO 这里未对获取单个商品进行 sid 的验证
   if(ctx.params.id=='show'){
     ctx.response.body = show();
   }else {
-    // var id = Number(); // _r=Rst.fail("该id对应的商品数据不存在");
     ctx.response.body = await getItem(ctx.params.id);
   }
 });
-const checkALogin = async (ctx)=>{
-  // ctx.cookies.set(AdminSession, admin.id); // 设置cookies
-  var admin = await checkAdminLogin(ctx.cookies.get(AdminSession)) // 获取cookies
-  if(admin && admin.id){
-    if(admin.sid==-1){
-      ctx.response.body = Rst.fail("管理员sid=-1,该管理员未分配分校",401)
-    }else {
-      return {flag:true,admin:admin};
-    }
-  }else {
-    ctx.response.body = Rst.fail("请先登录",401)
-  }
-  return {}; // 最后必须返回一个空对象,否则会出错
-}
 
 router.post('/', async (ctx, next) => {
   // var body = ctx.request.body;
