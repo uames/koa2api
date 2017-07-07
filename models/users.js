@@ -22,7 +22,7 @@ const build = ()=>{
           phone: '18825053886',
           password: '123456',
           checkpwd: '654321',
-          balance: 9999,
+          balance: 999999,
           sign: 'test',
           sid : 0
     });

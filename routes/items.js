@@ -9,8 +9,6 @@ const DIR = process.env.DIR || '';
 
 router.prefix(DIR + '/items');
 
-
-
 const postItem = {
   name: '艾美特(Airmate) FSW52R 遥控落地扇/电风扇',
   description: '【京东自营-艾美特专注电风扇44年】累计销量120万台！超30万消费者参与好评！大风量超静音，5米智能遥控，3档风量调节，静音睡眠风，一级能效！电机十年包用！好风扇就选艾美特！',
@@ -24,7 +22,7 @@ const postItem = {
   cat_id : 0,
   status : 0,
   buycount : 0,
-  sid : 2
+  sid : 1
 }
 // 接口说明 items/show
 const show = ()=>{
