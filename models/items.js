@@ -23,7 +23,7 @@ entity = {
 
               品牌官方网站：http://www.airmate-china.com/
               售后服务电话：400-886-0315`,
-  cat_id : 1,
+  tag_id : 1,
   status:1,
   sid:1
 };
