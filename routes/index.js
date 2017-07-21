@@ -1,7 +1,7 @@
 import Rst from '../utils/result';
-const router = require('koa-router')()
-const DIR = process.env.DIR || '';
-router.prefix(DIR);
+const {router} = Rst.initRoute({
+  prefix:''
+});
 
 router.get('/', async (ctx, next) => {
   ctx.body = {

@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "积分商城",
   "scripts": {
-    "start": "NODE_ENV=production DIR=/shop forever restart ./bin/run.js",
+    "start": "PORT=8062 NODE_ENV=production DIR=/shop forever restart ./bin/run.js",
     "dev": "NODE_ENV=development DIR= nodemon ./bin/run.js",
-    "resetTables": "BuildTables=1 npm run dev",
+    "resetTables-dangerous-operation": "BuildTables=1 npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

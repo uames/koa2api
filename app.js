@@ -23,6 +23,7 @@ app.use(require('koa-views')(__dirname + '/views', {
   // extension: 'html'
 }))
 
+// 便捷的测试框架 restc, 唯一的问题是无法区分路由,所有路由都变成了接口, 无法加载html模板
 app.use(require('restc').koa2())
 
 // logger
@@ -45,6 +46,11 @@ for (var f of js_files) {
     console.log(`process routes: ${f}...`);
     // 导入js文件:
     let route = require(__dirname + '/routes/' + f);
+    app.use(route.routes(), route.allowedMethods())
+}
+// 导入自动生成路由文件
+let routes = require(__dirname + '/utils/routes');
+for (var route of routes) {
     app.use(route.routes(), route.allowedMethods())
 }
 

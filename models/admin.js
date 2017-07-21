@@ -1,28 +1,23 @@
-import {Sequelize, defineModel} from '../utils/mysql'
+import {Sequelize, initTable} from '../utils/model'
 import Rst from '../utils/result'
 
-const dbAdmin = {
+const table = 'admin',
+fields = {
   id : {type : Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey : true, unique : true},
   account : {type : Sequelize.STRING, comment : '用户帐号'},
   password : {type : Sequelize.STRING, comment : '用户密码'},
   sign : {type : Sequelize.STRING, comment : '超级管理员此项为空字符串,创建普通管理员时,为管理员创建新活动时,需填入此项值(与sid对应),然后copy到对应的活动项目中(生成数据后不可修改,否则会对应不上)'},
   sid : {type : Sequelize.INTEGER, defaultValue: -1, comment : "管理员所管理的分校id, -1表示未分配分校, 0表示超级管理员"}
+},
+entity = {
+  account: 'test',
+  password: '123456',
+  sign: 'test123456',
+  sid : 1
 }
-const _dbAdmin = JSON.parse(JSON.stringify(dbAdmin));
+const {Model: Admin, ..._table} = initTable({table, fields, entity})
 
-const Admin = defineModel('admin', dbAdmin);
 
-const build = ()=>{
-  // force: true will drop the table if it already exists
-  Admin.sync({force: true}).then(() => {
-    return Admin.create({
-      account: 'test',
-      password: '123456',
-      sign: 'test',
-      sid : 0
-    });
-  });
-}
 
 var IDS = {}; // 已登录的管理员对象列表,程序或服务器重启会导致用户掉线(已修改,见 TAG[00002])
 const operateIDS = (admin, login)=>{
@@ -80,12 +75,12 @@ const logout = (ctx)=>{
   ctx.cookies.set(AdminSession, null);
   return true;
 }
-
 const AdminSession = "admin-sessionid";
+
+
+
 module.exports = {
-  dbAdmin: _dbAdmin,
-  build,
-  Admin,
+  ..._table,
   login,
   logout,
   AdminSession,

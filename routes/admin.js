@@ -1,9 +1,8 @@
 import Rst from '../utils/result';
 import { login, logout, AdminSession } from '../models/admin';
-const router = require('koa-router')()
-const DIR = process.env.DIR || '';
-
-router.prefix(DIR + '/admin');
+const {router} = Rst.initRoute({
+  prefix:'/admin'
+});
 
 router.post('/login', async (ctx, next) => {
     var account = ctx.request.body.account || '',
