@@ -101,7 +101,7 @@ const initTable = ({fields, table, entity})=>{
     var rst=[], id=model.id;
     delete model.id
     await Model.update(
-      { ...model },
+      { ...model, updatedAt:Date.now() },
       { where: { id }}
     ).then((res)=>{
       rst = res;

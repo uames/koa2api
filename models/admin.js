@@ -6,14 +6,13 @@ fields = {
   id : {type : Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey : true, unique : true},
   account : {type : Sequelize.STRING, comment : '用户帐号'},
   password : {type : Sequelize.STRING, comment : '用户密码'},
-  sign : {type : Sequelize.STRING, comment : '超级管理员此项为空字符串,创建普通管理员时,为管理员创建新活动时,需填入此项值(与sid对应),然后copy到对应的活动项目中(生成数据后不可修改,否则会对应不上)'},
+  // sign : {type : Sequelize.STRING, comment : '超级管理员此项为空字符串,'},
   sid : {type : Sequelize.INTEGER, defaultValue: -1, comment : "管理员所管理的分校id, -1表示未分配分校, 0表示超级管理员"}
 },
 entity = {
-  account: 'test',
-  password: '123456',
-  sign: 'test123456',
-  sid : 1
+  "account": "test",
+  "password": "123456",
+  "sid" : 0
 }
 const {Model: Admin, ..._table} = initTable({table, fields, entity})
 

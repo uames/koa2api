@@ -21,7 +21,10 @@ const models = [
   {model:"activity",get:{check:"super_admin"}},
   {model:"address",get:{check:"user"}},
   {model:"items",get:{check:"admin user"}},
-  {model:"itemTag",check:"user"}, {model:"order",check:"admin_user"}, {model:"users",check:"admin_user"}]
+  {model:"itemTag",check:"user"},
+  {model:"admin",check:"admin"},
+  {model:"order",check:"admin_user"},
+  {model:"users",check:"admin_user"}]
 
 const DIR = process.env.DIR || '';
 const cwd = process.cwd()

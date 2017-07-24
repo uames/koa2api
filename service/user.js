@@ -5,7 +5,7 @@ import Rst from '../utils/result';
 const getAdmin = async (cookies)=>{
   var admin = await getAdminBySession(cookies.get(AdminSession))
   if(admin && admin.id){
-    return admin.sid;
+    return admin;
   }else {
     return -1;
   }
@@ -37,16 +37,22 @@ const getSidQuery = async ({ctx, isItems})=>{
   }
   return q;
 }
-const getQueryObj = ({page,pSize,keyword,order,status,where})=>{
+const getQueryObj = ({page,pSize,keyword,order,status,where,noPhone,hasDesc})=>{
   page = Number(page) || 1;
   pSize = Number(pSize) || 10;
   var _like = {$like: "%"+keyword+"%"}, items = [];
-  var _where = keyword?{
-    $or: [
-      { name: _like },
-      { phone: _like }
-    ]
-  }:{};
+  var _where = {};
+  if(keyword){
+    _where = {
+      $or: [
+        { name: _like },
+        { phone: _like }
+      ]
+    };
+    noPhone && _where["$or"].pop();
+    hasDesc && _where["$or"].push({description:_like});
+  }
+
   if(status==1 || status==0){
     _where.status = status
   }
@@ -61,14 +67,12 @@ const getQueryObj = ({page,pSize,keyword,order,status,where})=>{
 // 检查是否登录了超级管理员帐号
 const checkSuperAdmin = async ({ctx, callBackFn})=>{
   var admin = await getAdmin(ctx.cookies)
-  if(admin.sid==0){
-    callBackFn({admin});
+  if(admin!=-1 && admin.sid==0){
+    await callBackFn({admin});
+  }else if(admin==-1){
+    ctx.response.body = Rst.fail('请先登录')
   }else {
-    if(admin.sid==-1){
-      ctx.response.body = Rst.fail('请先登录')
-    }else {
-      ctx.response.body = Rst.fail('非超级管理员不可查看项目'+sid)
-    }
+    ctx.response.body = Rst.fail('非超级管理员不可查看项目 sid:'+admin.sid)
   }
 }
 module.exports = {

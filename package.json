@@ -24,6 +24,7 @@
     "koa-session2": "^2.2.4",
     "koa-static": "^3.0.0",
     "koa-views": "^6.0.2",
+    "lodash": "^4.17.4",
     "mysql2": "^1.3.5",
     "runkoa": "^1.5.9",
     "sequelize": "^4.2.0"
