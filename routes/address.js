@@ -15,17 +15,21 @@ const {router,entity:postAddress} = Rst.initRoute({
 // 接口说明 items/show
 const show = ()=>{
   return {
-    "GET  /items" : {example: "/items?page=1&pSize=10&keyword=书架&order=price desc"},
-    "DEL  /items" : {参数:{"body中的数据":"[要删除的id数组]"}, 成功:{errCode:0},失败:{errCode:1,msg:"失败原因"}}
+    "GET  /address" : "用户获取自己地址列表",
+    "GET  /address/:id" : "用户根据id获取单个地址信息",
+    "POST /address" : "用户[新增]地址",
+    "PUT  /address" : "用户[修改]单条地址数据",
+    "PUT  /address/on/:id" : "用户设置默认地址, id为要设置的address的id",
+    "DEL  /address" : {说明:"删除地址",参数:{"body中的数据":"[要删除的id数组]"}}
   }
 }
 
-// 用户获取自己 id 下的所有订单
+// 用户获取自己地址列表
 router.get('/', async (ctx, next) => {
   await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
     let q={}
     q.where = {user_id:user.id}
-    ctx.response.body = await Address.retrieve({query:getQueryObj(q)}); // q.page, q.pSize, q.keyword, q.order
+    ctx.response.body = await Address.retrieve({query:q}); // q.page, q.pSize, q.keyword, q.order
   }});
 });
 router.get('/:id', async (ctx, next) => {
@@ -90,7 +94,7 @@ router.put('/on/:id', async (ctx, next) => {
 
   }});
 });
-// 删除订单只是将 status 值改为 -1
+
 router.del('/', async (ctx, next)=>{
   await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
     var ids = ctx.request.body;

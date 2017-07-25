@@ -6,6 +6,17 @@ const {router} = Rst.initRoute({
   prefix:'/admin'
 });
 
+router.get('/show', async (ctx, next) => {
+  ctx.response.body = {
+    "GET  /admin" : "超级管理员获取管理员列表",
+    "POST /admin" : "超级管理员[新增]普通管理员. name password相同, 或name sid相同的, 只能出现一次,",
+    "POST /admin/login" : "帐号密码登录管理端",
+    "POST /admin/logout" : "退出登录",
+    "PUT  /admin" : "超级管理员[修改]普通管理员. name password相同, 或name sid相同的, 只能出现一次,",
+    "DEL  /admin" : {说明:"超级管理员[删除]普通管理员",参数:{"body中的数据":"[要删除的id数组]"}}
+  }
+});
+
 router.post('/login', async (ctx, next) => {
     var account = ctx.request.body.account || '',
         password = ctx.request.body.password || '';
@@ -51,6 +62,7 @@ router.post('/', async (ctx, next) => {
     }
   }});
 });
+
 router.put('/', async (ctx, next) => {
   await checkSuperAdmin({ctx, callBackFn:async (admin)=>{
     var body = ctx.request.body;
@@ -60,9 +72,6 @@ router.put('/', async (ctx, next) => {
       ctx.response.body = Rst.fail("该活动已有同名的管理员帐号")
     }else {
       var res = await Admin.update(ctx.request.body)
-      console.log('~~~~~~~~~~~~~~~');
-      console.log(res);
-      console.log('~~~~~~~~~~~~~~~');
       Rst.putRst(res, ctx);
     }
   }});
@@ -71,7 +80,7 @@ router.del('/', async (ctx, next)=>{
   await checkSuperAdmin({ctx, callBackFn:async ()=>{
     var ids = ctx.request.body;
     // ids = _.without(ids,0); // TODO 删除管理员的时候,不能删除 sid 为 0 的超级管理员
-    var res = await Admin.del(ids, ctx.params.status)
+    var res = await Admin.del(ids)
     Rst.putRst([res], ctx);
   }});
 });

@@ -1,7 +1,7 @@
 import { checkAdminLogin as checkALogin } from '../models/admin';
 import { checkUserLogin as checkULogin } from '../models/users';
 import { getQueryObj,checkSuperAdmin } from '../service/user';
-import Activity from '../models/activity';
+import Activity, {entity} from '../models/activity';
 import Rst from '../utils/result';
 const {router} = Rst.initRoute({
   prefix:'/activity'
@@ -14,9 +14,9 @@ const show = ()=>{
     "POST  /activity/checkApiPost" : "用于在接入新活动(项目)之前, 检查该活动为接入积分商城开发的  [修改]  积分接口是否正确",
 
     "GET  /activity" : {example: "/activity?page=1&pSize=10&keyword=书架&order=price desc", "成功":'返回第一页10条数据', "备注":"若为空数组[],则表示该搜索条件无对应数据"},
-    "GET  /activity/:id" : {example: "/activity/1", "成功":{id:1, ...postItem}, "备注":"若为空对象{},则表示该id对应的数据不存在"},
-    "POST /activity" : {参数:postItem, 成功:{errCode:0,id:"新建的数据的id"},失败:{errCode:1,msg:"失败原因"}},
-    "PUT  /activity" : {说明:"sign值一旦创建不可修改",参数:postItem, 成功:{errCode:0,id:"修改的数据的id"},失败:{errCode:1,msg:"失败原因"}},
+    "GET  /activity/:id" : {example: "/activity/1", "成功":{id:1, ...entity}, "备注":"若为空对象{},则表示该id对应的数据不存在"},
+    "POST /activity" : {参数:entity, 成功:{errCode:0,id:"新建的数据的id"},失败:{errCode:1,msg:"失败原因"}},
+    "PUT  /activity" : {说明:"sign值一旦创建不可修改",成功:{errCode:0,id:"修改的数据的id"},失败:{errCode:1,msg:"失败原因"}},
     // "DEL  /activity" : {参数:{"body中的数据":"[要删除的id数组]"}, 成功:{errCode:0},失败:{errCode:1,msg:"失败原因"}}
   }
 }

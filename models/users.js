@@ -9,18 +9,16 @@ fields = {
   checkpwd :  {type : Sequelize.STRING, comment : '跳转密码,用于保存接入的系统的密码,跳转时验证该密码正确即可'},
   address : {type: Sequelize.STRING, comment : '当前默认收货地址' },
   balance : {type : Sequelize.INTEGER, comment : '积分余额'},
-  sign : {type : Sequelize.STRING, comment : '超级用户此项为空字符串,第三方接入本系统后,调用接口生成用户时,需传入此项值(与sid对应),然后copy到对应的活动项目中(生成数据后不可修改,否则会对应不上)'},
   sid : {type : Sequelize.INTEGER, defaultValue: -1, comment : "此项值根据sign在activity表中获取到,用户所属的活动(分校)id, -1表示未分配, 0表示超级用户,可查看所有分校产品"}
 },
 entity = {
-      name: 'test',
-      phone: '18825053886',
-      password: '123456',
-      checkpwd: '654321',
-      address: "广州市",
-      balance: 999999,
-      sign: 'test123456',
-      sid : 1
+      "name": "test",
+      "phone": "18825053886",
+      "password": "123456",
+      "checkpwd": "654321",
+      "address": "广州市",
+      "balance": 999999,
+      "sid" : 1
 }
 const {Model: Users, ..._table} = initTable({table, fields, entity})
 
@@ -74,12 +72,12 @@ const checkUserLogin = async (ctx)=>{
   return {}; // 最后必须返回一个空对象,否则会出错
 }
 
-const login = async ({phone, password, checkpwd, sign})=>{
+const login = async ({phone, password, checkpwd, sid})=>{
   var _user = {}, where = {phone};
-  if(password && password.length > 5){
+  if(password && password.length > 1){
     where.password = password
   }else {
-    where.sign = sign; // 若为跳转登录,则还需要用到 sign
+    where.sid = sid; // 若为跳转登录,则还需要用到 sid
     where.checkpwd = checkpwd
   }
   await Users.findOne({ where: where }).then(user => {
@@ -97,6 +95,17 @@ const logout = (ctx)=>{
   ctx.cookies.set(UserSession, null);
   return true;
 }
+const updateByPhone = async (model)=>{
+  var rst=[], phone=model.phone;
+  delete model.id
+  await Users.update(
+    { ...model, updatedAt:Date.now() },
+    { where: { phone }}
+  ).then((res)=>{
+    rst = res;
+  });
+  return rst;
+}
 const UserSession = "user-sessionid"
 
 
@@ -108,5 +117,6 @@ module.exports = {
   logout,
   getUserBySession,
   checkUserLogin,
-  rebuildUser
+  rebuildUser,
+  updateByPhone
 }

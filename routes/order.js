@@ -30,8 +30,11 @@ router.get('/', async (ctx, next) => {
 // 管理员获取自己 sid 下的所有订单
 router.get('/all', async (ctx, next) => {
   await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
-    let q=ctx.query
-    q.where = {sid: admin.sid, status:{$gt: -1}} // status==-1 为已删除的订单
+    let q={where:{}, ...ctx.query}
+    if(admin.sid>0){
+      q.where = {sid: admin.sid};
+    }
+    q.where.status = {$gt: -1} // status==-1 为已删除的订单
     ctx.response.body = await Order.retrieve({query:getQueryObj(q)}); // q.page, q.pSize, q.keyword, q.order
   }});
 });
@@ -57,17 +60,17 @@ router.post('/', async (ctx, next) => {
   }});
 });
 router.put('/status/:status', async (ctx, next) => {
-  const setStatus = async ()=>{
+  const setStatus = async (sid)=>{
     var ids = ctx.request.body;
-    var res = await Order.chgStatus(ids, ctx.params.status)
+    var res = await Order.chgStatus({ids, status:ctx.params.status,sid})
     Rst.putRst(res, ctx);
   }
   await checkULogin(ctx).then(async ({flag,user})=>{
     if(flag){
-      await setStatus()
+      await setStatus(user.sid)
     }else {
-      await checkALogin(ctx).then(async ({flag,user})=>{ if(flag){
-        await setStatus()
+      await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
+        await setStatus(admin.sid)
       }});
     }
   });
@@ -76,7 +79,11 @@ router.put('/status/:status', async (ctx, next) => {
 router.del('/', async (ctx, next)=>{
   await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
     var ids = ctx.request.body;
-    var res = await Order.chgStatus(ids, -1)
+    var where = {ids, status:-1}
+    if(admin.sid>0){
+      where.sid = admin.sid
+    }
+    var res = await Order.chgStatus(where)
     Rst.putRst([res], ctx);
   }});
 });

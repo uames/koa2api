@@ -118,6 +118,15 @@ const initTable = ({fields, table, entity})=>{
     });
     return rst;
   }
+  const delByWhere = async where=>{
+    var rst=[];
+    await Model.destroy({
+      where,
+    }).then((res)=>{
+      rst = res;
+    });
+    return rst;
+  }
   return {
     fields : _fields,
     entity,
@@ -126,7 +135,8 @@ const initTable = ({fields, table, entity})=>{
     create,
     retrieve,
     update,
-    del
+    del,
+    delByWhere
   }
 }
 module.exports = {

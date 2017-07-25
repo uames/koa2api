@@ -45,21 +45,13 @@ router.get('/:id', async (ctx, next) => {
 });
 
 router.post('/', async (ctx, next) => {
-  // var body = ctx.request.body;
-  // {
-  //   name: body.name,
-  //   description: body.description,
-  //   price: body.price,
-  //   specifications : body.specifications,
-  //   details : body.details,
-  //   cat_id : body.details
-  // }
   await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
-      var item = await createItem({sid: admin.sid, ...postItem})
-      if(item && item.id){
-        var _r = Rst.suc()
-        ctx.response.body = {id: item.id, ..._r};
-      }
+    var body = ctx.request.body;
+    var item = await createItem({...body, sid: admin.sid})
+    if(item && item.id){
+      var _r = Rst.suc()
+      ctx.response.body = {id: item.id, ..._r};
+    }
   }});
 });
 

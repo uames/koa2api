@@ -28,12 +28,16 @@ entity = {
 const {Model: Order, ..._table} = initTable({table, fields, entity})
 
 // 修改订单状态, 支持批量修改
-const chgStatus = async (ids, status)=>{
+const chgStatus = async ({ids, status, sid})=>{
   var rst=[];
   var id = ids.constructor.name==="Array"?{$in: ids}:ids;
+  var where = {id};
+  if(sid){
+    where.sid = sid;
+  }
   await Order.update(
     { status: status }, /* set attributes' value */
-    { where: { id }}/* where criteria */
+    { where }/* where criteria */
   ).then((res)=>{
     rst = res;
   });
