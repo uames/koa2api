@@ -7,12 +7,14 @@ fields = {
     为管理员创建新活动时,需填入此项值(与sid对应),然后copy到对应的活动项目中(生成数据后不可修改,否则会对应不上)`},
   api_get : {type : Sequelize.STRING, comment : '该活动同步积分的接口'},
   api_post : {type : Sequelize.STRING, comment : '该活动修改积分的接口'},
+  url : {type : Sequelize.STRING, comment : '该活动的首页地址'},
 },
 entity = {
   "name" : "test",
   "sign" : "test123456",
   "api_get" : "http://localhost:3000/users/testApiGet",
   "api_post" : "http://localhost:3000/users/testApiPost",
+  "url" : "http://baidu.com "
 };
 
 module.exports = initTable({table, fields, entity})

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "积分商城",
   "scripts": {
-    "start": "PORT=8062 NODE_ENV=production DIR=/shop forever restart ./bin/run.js",
-    "dev": "NODE_ENV=development DIR= nodemon ./bin/run.js",
+    "start": "UPDATE_MANIFEST=1 PORT=8062 NODE_ENV=production DIR=/shop forever restart ./bin/run.js",
+    "dev": "UPDATE_MANIFEST=1 NODE_ENV=development DIR= nodemon ./bin/run.js",
     "resetTables": "BuildTables=1 npm run dev",
     "resetTables-dangerous-operation": "BuildTables=1 PORT=8062 NODE_ENV=production DIR=/shop node ./bin/run.js",
     "test": "echo \"Error: no test specified\" && exit 1"
