@@ -40,13 +40,14 @@ router.get('/all', async (ctx, next) => {
 });
 // 用户获取自己 id 和 sid 下的所有订单
 router.get('/:id', async (ctx, next) => {
-  await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
-    if(ctx.params.id=='show'){
-      ctx.response.body = show();
-    }else {
+  if(ctx.params.id=='show'){
+    ctx.response.body = show();
+  }else {
+    await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
       ctx.response.body = await Order.retrieve({id:ctx.params.id});
-    }
-  }});
+
+    }});
+  }
 });
 // 用户生成订单
 router.post('/', async (ctx, next) => {

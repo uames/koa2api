@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/css/test-manifest.css" >
+  </head>
+  <body>
+    test-serviceworker
+    <img src="https://lh4.googleusercontent.com/XX2Wn8SS8gcv9V1AVRJA2e1MeXaKD4OpnQ7eny2smq5WZZF_jwgI2NYvS5GA-OW35syQ63V-TspyDA=s600" alt="">
+  </body>
+  <script type="text/javascript">
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/html/test-serviceworker.js', {  }).then(function(reg) {
+      console.log(reg);
+      if(reg.installing) {
+        console.log('Service worker installing');
+      } else if(reg.waiting) {
+        console.log('Service worker installed');
+      } else if(reg.active) {
+        console.log('Service worker active');
+      }
+    }).catch(function(error) {
+      console.log('Registration failed with ' + error);
+    });
+}
+  </script>
+</html>

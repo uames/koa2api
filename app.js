@@ -48,11 +48,9 @@ app.use(require('koa-views')(__dirname + '/views', {
 //   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
 // })
 
+
 // 将 process.env.UPDATE_MANIFEST 处理为空格字符串
-process.env.UPDATE_MANIFEST = (new Array(Number(process.env.UPDATE_MANIFEST)).fill(" ")).join("");
-console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-console.log(process.env.UPDATE_MANIFEST.length);
-console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+process.env.UPDATE_MANIFEST = (new Array(Number(process.env.UPDATE_MANIFEST?process.env.UPDATE_MANIFEST:0)).fill(" ")).join("");
 // routes
 // 先导入fs模块，然后用readdirSync列出文件 这里可以用sync是因为启动时只运行一次，不存在性能问题:
 var files = require('fs').readdirSync(__dirname + '/routes');

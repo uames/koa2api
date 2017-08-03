@@ -25,7 +25,7 @@ router.get('/', async (ctx, next) => {
     if(sid>0){ // sid==0 的超级管理员可查看所有标签
       q.where = {sid}
     }
-    ctx.response.body = await Tag.retrieve({query:getQueryObj({...q,noPhone:1})});
+    ctx.response.body = await Tag.retrieve({query:getQueryObj({...q,noPhone:1,noOffset:1})});
   }else {
     ctx.response.body = Rst.fail('请先登录')
   }

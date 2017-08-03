@@ -37,7 +37,7 @@ const getSidQuery = async ({ctx, isItems})=>{
   }
   return q;
 }
-const getQueryObj = ({page,pSize,keyword,order,status,where,noPhone,hasDesc})=>{
+const getQueryObj = ({page,pSize,keyword,order,status,where,noPhone,hasDesc,noOffset})=>{
   page = Number(page) || 1;
   pSize = Number(pSize) || 10;
   var _like = {$like: "%"+keyword+"%"}, items = [];
@@ -56,13 +56,16 @@ const getQueryObj = ({page,pSize,keyword,order,status,where,noPhone,hasDesc})=>{
   if(status==1 || status==0){
     _where.status = status
   }
-  _where = {...where, ..._where}
-  return {
-    where: _where,
+  var _return = {
+    where: {...where, ..._where},
     order: order?[order.split(/\s+/)]:"",// order: 'title DESC',
     offset: (page-1) * pSize,
     limit: pSize
   }
+  if(noOffset){
+    delete _return.offset;
+  }
+  return _return
 }
 // 检查是否登录了超级管理员帐号
 const checkSuperAdmin = async ({ctx, callBackFn})=>{
