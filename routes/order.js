@@ -1,6 +1,6 @@
 import Rst from '../utils/result';
 import Order, {entity} from '../models/order';
-import { getSidQuery,getQueryObj } from '../service/user';
+import { getSid, getSidQuery,getQueryObj } from '../service/user';
 import { checkUserLogin as checkULogin } from '../models/users';
 import { checkAdminLogin as checkALogin } from '../models/admin';
 
@@ -66,15 +66,13 @@ router.put('/status/:status', async (ctx, next) => {
     var res = await Order.chgStatus({ids, status:ctx.params.status,sid})
     Rst.putRst(res, ctx);
   }
-  await checkULogin(ctx).then(async ({flag,user})=>{
-    if(flag){
-      await setStatus(user.sid)
-    }else {
-      await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
-        await setStatus(admin.sid)
-      }});
-    }
-  });
+  const sid = await getSid(ctx.cookies);
+
+  if(sid==-1){
+    ctx.response.body = Rst.fail("请先登录", 401)
+  }else {
+    await setStatus(sid)
+  }
 });
 // 删除订单只是将 status 值改为 -1
 router.del('/', async (ctx, next)=>{
