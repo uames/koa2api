@@ -23,7 +23,7 @@ entity = {
   "address": "广州市",
   user_id: 1,
   sid: 1,
-  status: 2,
+  status: 1,
 };
 const {Model: Order, ..._table} = initTable({table, fields, entity})
 

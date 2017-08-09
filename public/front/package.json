@@ -1,11 +1,9 @@
 {
   "name": "shop",
   "version": "1.0.0",
-  "description": "积分商城",
+  "description": "积分商城前台",
   "scripts": {
-    "initParams": "UPDATE_MANIFEST=1 PORT=8062 NODE_ENV=production DIR=/shop",
-    "start": "npm run initParams forever start ./bin/run.js",
-    "restart": "npm run initParams forever restart ./bin/run.js",
+    "start": "UPDATE_MANIFEST=1 PORT=8062 NODE_ENV=production DIR=/shop forever start ./bin/run.js",
     "dev": "NODE_ENV=development DIR= nodemon ./bin/run.js",
     "resetTables": "UPDATE_MANIFEST=1 BuildTables=1 npm run dev",
     "resetTables-dangerous-operation": "UPDATE_MANIFEST=1 BuildTables=1 PORT=8062 NODE_ENV=production DIR=/shop node ./bin/run.js",
@@ -29,7 +27,6 @@
     "koa-views": "^6.0.2",
     "lodash": "^4.17.4",
     "mysql2": "^1.3.5",
-    "request": "^2.81.0",
     "runkoa": "^1.5.9",
     "sequelize": "^4.2.0"
   },

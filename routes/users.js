@@ -1,10 +1,9 @@
 import Rst from '../utils/result';
 import Users,{ login, logout, UserSession, checkUserLogin as checkULogin } from '../models/users';
 import Activity from '../models/activity';
-import { getSid, getSidQuery, getQueryObj } from '../service/user';
+import { getSid, getSidQuery, getQueryObj, fetchGet } from '../service/user';
 import { checkAdminLogin as checkALogin } from '../models/admin';
-import http from 'http'
-import qs from 'querystring'
+import request from 'request'
 const {router} = Rst.initRoute({
   prefix:'/users'
 });
@@ -28,14 +27,38 @@ const show = ()=>{
 
 // 测试 api_get 用于跳转登录后测试调用api, 调用于 /models/activity.js 中
 router.get('/testApiGet', async (ctx, next) => {
-  ctx.response.body = {
-    balance: 0
+  var {phone, checkpwd, sign} = ctx.query
+  // 这里根据该用户的帐号, 返回该用户的积分
+  // 重点: 若根据 phone checkpwd 找不到对应帐号, 则返回 balance: -1
+  ctx.body = {
+    balance: 8989
   }
 });
-// 测试 api_post 用于积分变化后同步到该系统, 调用于 /models/activity.js 中
+// 测试 api_post 用于积分变化后同步到该系统, 设置于 /models/activity.js, 调用于 /service/api.js
+// 同步积分的接口, 要确保积分只能变小不能变大!!!(除了取消订单外)
+// 这个接口建议做成接收到要消费的积分,然后计算出减掉了消费的积分后的总分返回!避免因为有积分高频的操作而导致积分不准确!
 router.post('/testApiPost', async (ctx, next) => {
-  var {phone, checkpwd, sign, balance} = ctx.request.body
-  ctx.response.body = Rst.suc("操作成功")
+  var {phone, checkpwd, sign, balance, cancelOrderId} = ctx.request.body
+
+  if(cancelOrderId && !isNaN(cancelOrderId) && cancelOrderId>0){
+    // 若 orderId>0 则需调用 /order/cancelOrder/:cancelOrderId/:phone/:checkpwd/:sign, 获取该订单使用了的积分: balance
+    // 然后将 balance 增加到该用户的积分中 (即用户原来积分加上 balance 后作为用户积分)
+    var origin = 'http://localhost:3000'
+    var uri = `/order/cancelOrder/${cancelOrderId}/${phone}/${checkpwd}/${sign}`
+    await new Promise((resolve, reject) => {
+      request.get(origin + uri, async (error, response, data)=>{
+        // 这里将 data.balance 加到该用户的积分中
+        // 重点: 若操作成功, 返回 errCode:0 或 code:1 或 status:1, 若失败则反之, 且返回失败原因 errMsg 或 msg
+        if(true){
+          ctx.body = Rst.suc("操作成功")
+        }
+        resolve()
+      })
+    })
+  }else {
+    // 否则将 balance 作为该用户消耗的积分(即用户原来积分减掉 balance 后作为用户积分)
+    ctx.body = Rst.suc("操作成功")
+  }
 });
 
 // 跳转登录需要有三个参数,sign account checkpwd, 缺一不可
@@ -47,84 +70,51 @@ router.get('/jumpLogin/:sign/:account/:checkpwd', async (ctx, next) => {
     if(user && user.id){
       ctx.cookies.set(UserSession, user.id);
       // 这里调用 activity 表中 sid 为 user.sid 的积分同步接口, 将 user.phone 和 checkpwd 传过去获取数据
-      var api = activitys[0]?activitys[0]['api_get']:'';
-      if(api){
-        // 这里利用了 Promise 解决了使异步的 http 变同步的问题
-        await new Promise((resolve, reject) => {
-          http.get(api+"?"+qs.stringify({phone, ...ctx.params}),async (req,res)=>{
-              req.on('error', function(e){
-                Rst.log({
-                  content:"请求api_get接口出错,userId:"+user.id+",phone:"+phone+",sign:"+sign,
-                  type:1,
-                  tag:"[routes.users jumpLogin 01]"
-                });
-                ctx.response.body = Rst.fail("请求api_get接口出错,uid:"+user.id)
-              });
-              var html='';
-              req.on('data',function(data){
-                html+=data;
-              });
-              req.on('end',async ()=>{
-                // 规定返回的obj的格式 {balance: 用户在该系统中的当前积分}
-                var {balance} = JSON.parse(html);
-                if(balance>-1){
-                  await Users.update({id:user.id, balance});
-                  // TODO 这里就应该跳转进入登录后的页面了  ctx.redirect()
-                  ctx.response.body = Rst.suc("跳转登录成功")
-                }else {
-                  Rst.log({
-                    content:"api_get同步积分失败,userId:"+user.id+",phone:"+phone+",sign:"+sign+",balance:"+balance,
-                    type:1,
-                    tag:"[routes.users jumpLogin 02]"
-                  });
-                  ctx.response.body = Rst.fail("api_get同步积分失败,uid:"+user.id+",balance:"+balance)
-                }
-                resolve()
-              });
-          });
-        })
-      }else {
-        ctx.response.body = Rst.fail("未设置 api_get 接口")
-      }
+      var api_get = activitys[0]?activitys[0]['api_get']:'';
+      await fetchGet({ctx, api_get, phone, checkpwd, sign, callBackFn:async ({balance})=>{
+        await Users.update({id:user.id, balance});
+        // TODO 这里就应该跳转进入登录后的页面了
+        // ctx.redirect()
+        ctx.body = Rst.suc("跳转登录成功")
+      }})
     }else {
-      ctx.response.body = Rst.fail("帐号或密码错误",401)
+      ctx.body = Rst.fail("帐号或密码错误",401)
     }
   }else {
-    ctx.response.body = Rst.fail("sign对应的活动不存在")
+    ctx.body = Rst.fail("sign对应的活动不存在")
   }
 
 });
 // 为用户创建帐号(接入的系统在用户绑定手机号码的同时,或者跳转登录之前,调用此方法)
 router.post('/', async (ctx, next) => {
   // 这里不需要验证,因为每次登录或消费的时候会验证积分
-   var {phone, checkpwd, password, sign, balance, name, address} = ctx.request.body
+   var {phone, checkpwd, password, sign, name, address} = ctx.request.body
   //  根据sign获取activity并取得sid
    var activity = await Activity.retrieve({query:{where:{sign}}});
-   var sid = activity&&activity[0]?activity[0].id:0;
+   var {id:sid, sign, api_get} = activity&&activity[0]?activity[0]:{};
    if(sid){
     //  TODO 这里可以尝试先调用 api_get 获取该用户的积分, 同时也可以验证该用户确实存在!
-
-
-
-     //  检查 phone 是否有对应的帐号
-     var users = await Users.retrieve({query:{where:{sid,phone}}});
-     if(users.length==0){
-       users = await Users.retrieve({query:{where:{phone}}});
-       if(users.length>0){ // 有的话,使它们的password值一致
-         password = users[0].password;
-       }
-       if(password.length==0){ // 若没有password且没有其它活动相同phone的用户
-         password = '5201314';
-       }
-       var user = await Users.create({...ctx.request.body, sid, password});
-       if(user && user.id){
-         ctx.response.body = {id: user.id, ...(Rst.suc())};
-       }
-     }else {
-       ctx.response.body = Rst.fail("该用户已存在,请勿重复创建(sign,phone唯一)");
-     }
+    await fetchGet({ctx, api_get, phone, checkpwd, sign, callBackFn:async ({balance})=>{
+      //  检查 phone 是否有对应的帐号
+      var users = await Users.retrieve({query:{where:{sid,phone}}});
+      if(users.length==0){
+        users = await Users.retrieve({query:{where:{phone}}});
+        if(users.length>0){ // 有的话,使它们的password值一致
+          password = users[0].password;
+        }
+        if(password.length==0){ // 若没有password且没有其它活动相同phone的用户
+          password = '5201314';
+        }
+        var user = await Users.create({...ctx.request.body, balance, sid, password});
+        if(user && user.id){
+          ctx.body = {id: user.id, ...(Rst.suc())};
+        }
+      }else {
+        ctx.body = Rst.fail("该用户已存在,请勿重复创建(sign,phone唯一)");
+      }
+    }})
    }else {
-     ctx.response.body = Rst.fail("该项目不存在,请先到后台创建,或检查sign是否正确");
+     ctx.body = Rst.fail("该项目不存在,请先到后台创建,或检查sign是否正确");
    }
 });
 
@@ -134,7 +124,7 @@ router.get('/', async (ctx, next) => {
     if(admin.sid>0){ // admin 为 0 的超级管理员可以查看所有用户
       q.where = {sid:admin.sid}
     }
-    ctx.response.body = await Users.retrieve({query:getQueryObj(q)}); // q.page, q.pSize, q.keyword, q.order
+    ctx.body = await Users.retrieve({query:getQueryObj(q)}); // q.page, q.pSize, q.keyword, q.order
   }});
 });
 
@@ -142,13 +132,13 @@ router.get('/', async (ctx, next) => {
 router.get('/:id', async (ctx, next) => {
   await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
     if(ctx.params.id=='show'){
-      ctx.response.body = show();
+      ctx.body = show();
     }else {
       var userList = await Users.retrieve({query:{where:{id:ctx.params.id,sid:admin.sid}}})
       if(userList.length){
-        ctx.response.body = Users.rebuildUser(userList[0]);
+        ctx.body = Users.rebuildUser(userList[0]);
       }else {
-        ctx.response.body = Rst.fail("该用户不属于本活动或该用户不存在")
+        ctx.body = Rst.fail("该用户不属于本活动或该用户不存在")
       }
     }
   }});
@@ -159,16 +149,16 @@ router.post('/login', async (ctx, next) => {
     var user = await login({phone, password});
     if(user && user.id){
       ctx.cookies.set(UserSession, user.id);
-      ctx.response.body = user
+      ctx.body = user
     }else {
-      ctx.response.body = Rst.fail("帐号或密码错误",401)
+      ctx.body = Rst.fail("帐号或密码错误",401)
     }
 });
 router.post('/logout', async (ctx, next) => {
     if(logout(ctx)){
-      ctx.response.body = Rst.suc()
+      ctx.body = Rst.suc()
     }else {
-      ctx.response.body = Rst.fail("退出失败")
+      ctx.body = Rst.fail("退出失败")
     }
 });
 
@@ -182,7 +172,7 @@ router.put('/', async (ctx, next) => {
       var res = await Users.updateByPhone({phone:user.phone, password, name});
       Rst.putRst(res, ctx);
     }else {
-      ctx.response.body = Rst.fail("user有问题:"+JSON.stringify(user));
+      ctx.body = Rst.fail("user有问题:"+JSON.stringify(user));
     }
   }});
 });

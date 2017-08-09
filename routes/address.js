@@ -68,19 +68,19 @@ router.put('/', async (ctx, next) => {
 // 这里修改用户默认地址
 // 1.将address表中要改为默认地址的status置为1, 将该用户address表中其它数据status置为0.
 // 2.将要设置的默认地址报错到user表中该用户的address字段中
-router.put('/on/:id', async (ctx, next) => {
+router.put('/on', async (ctx, next) => {
   await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
-    var a = (await Address.retrieve({query:{where:{id:ctx.params.id,user_id:user.id}}}))[0]; // 取出当前要设为默认的地址数据
+    var address_id = ctx.params.id
+    var a = (await Address.retrieve({query:{where:{id:address_id,user_id:user.id}}}))[0]; // 取出当前要设为默认的地址数据
     if(a && a.id>0){
       if(a.status==1){
         ctx.response.body = Rst.suc('该地址已是默认地址');
       }else {
         var res = await Address.chgStatus({status:0,where:{user_id:user.id}}) // 先将该用户所有地址status置为0
         if(Rst.putRst(res, ctx)){
-          res = await Address.chgStatus({where:{id:ctx.params.id, user_id:user.id},status:1}) // 再将选中的id的status置为1
+          res = await Address.chgStatus({where:{id:address_id, user_id:user.id},status:1}) // 再将选中的id的status置为1
           if(res && res[0]>0){
-            user.address = a.province+" "+a.city+" "+a.district+" "+a.details;
-            res = await Users.update(user);
+            res = await Users.update({id:user.id, address:a.province+" "+a.city+" "+a.district+" "+a.details});
             // TODO 此处应该清一次该id在 models/users 中的 IDS 的缓存,避免修改后关闭网页再重新打开的时候显示的不是最新的默认地址!
             Rst.putRst(res, ctx);
           }else{
@@ -97,7 +97,7 @@ router.put('/on/:id', async (ctx, next) => {
 
 router.del('/', async (ctx, next)=>{
   await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
-    var ids = ctx.request.body;
+    var {ids} = ctx.request.body;
     var res = await Address.del(ids)
     Rst.putRst([res], ctx);
   }});

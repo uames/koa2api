@@ -3,6 +3,8 @@ import { checkUserLogin as checkULogin } from '../models/users';
 import { getQueryObj,checkSuperAdmin } from '../service/user';
 import Activity, {entity} from '../models/activity';
 import Rst from '../utils/result';
+import http from 'http'
+import qs from 'querystring'
 const {router} = Rst.initRoute({
   prefix:'/activity'
 });
@@ -37,24 +39,79 @@ router.get('/:id', async (ctx, next) => {
 });
 
 // 用于在接入新活动(项目)之前, 检查该活动为接入积分商城开发的  [同步]  积分接口是否正确
-// TODO
 router.post('/checkApiGet', async (ctx, next) => {
   const {api, phone, checkpwd, sign} = ctx.body;
+  if(api){
+    // 这里利用了 Promise 解决了使异步的 http 变同步的问题
+    await new Promise((resolve, reject) => {
+      http.get(api+"?"+qs.stringify({phone, checkpwd, sign}),async (req,res)=>{
+          req.on('error', function(e){
+            Rst.log({
+              content:"请求api_get接口出错,userId:"+user.id+",phone:"+phone+",sign:"+sign,
+              type:1,
+              tag:"[routes.users jumpLogin 01]"
+            });
+            ctx.response.body = Rst.fail("请求api_get接口出错,uid:"+user.id)
+          });
+          var html='';
+          req.on('data',function(data){
+            html+=data;
+          });
+          req.on('end',async ()=>{
+            // 规定返回的obj的格式 {balance: 用户在该系统中的当前积分}
+            var result = JSON.parse(html);
+            if(result.balance!=undefined){
+                ctx.response.body = Rst.suc("接口正确")
+            }else {
+                ctx.response.body = Rst.fail("接口错误")
+            }
+            resolve()
+          });
+      });
+    })
+  }
 });
 
 // 用于在接入新活动(项目)之前, 检查该活动为接入积分商城开发的  [修改]  积分接口是否正确
-// TODO 这个接口建议做成接收到要消费的积分,然后计算出减掉了消费的积分后的总分返回!避免因为有积分高频的操作而导致积分不准确!
 router.post('/checkApiPost', async (ctx, next) => {
-  const {api, phone, checkpwd, sign} = ctx.body;
-
+  const {api, phone, checkpwd, sign, balance} = ctx.body;
+  if(api){
+    // 这里利用了 Promise 解决了使异步的 http 变同步的问题
+    await new Promise((resolve, reject) => {
+      http.post(api+"?"+qs.stringify({phone, checkpwd, sign, balance}),async (req,res)=>{
+          req.on('error', function(e){
+            Rst.log({
+              content:"请求api_get接口出错,userId:"+user.id+",phone:"+phone+",sign:"+sign,
+              type:1,
+              tag:"[routes.users jumpLogin 01]"
+            });
+            ctx.response.body = Rst.fail("请求api_get接口出错,uid:"+user.id)
+          });
+          var html='';
+          req.on('data',function(data){
+            html+=data;
+          });
+          req.on('end',async ()=>{
+            // 规定返回的obj的格式 {balance: 用户在该系统中的当前积分}
+            var result = JSON.parse(html);
+            if(result.errCode==0 || result.code==1 || result.status==1){
+                ctx.response.body = Rst.suc("接口正确")
+            }else {
+                ctx.response.body = Rst.fail("接口错误")
+            }
+            resolve()
+          });
+      });
+    })
+  }
 });
 
 router.post('/', async (ctx, next) => {
   await checkSuperAdmin({ctx, callBackFn:async ({admin})=>{
     var body = ctx.request.body;
-    var activitys = await Activity.retrieve({query:{where:{name:body.name,sign:body.sign}}});
+    var activitys = await Activity.retrieve({query:{where:{sign:body.sign}}});
     if(activitys.length>0){
-      ctx.response.body = Rst.fail("相同的活动name和sign已存在")
+      ctx.response.body = Rst.fail("sign="+body.sign+"的活动已存在")
     }else {
       var activity = await Activity.create({...body})
       if(activity && activity.id){

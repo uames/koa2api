@@ -2,7 +2,7 @@ import Rst from '../utils/result';
 import { getSidQuery,getQueryObj } from '../service/user';
 import { fields, getItem, getItems, createItem, updateItem, deleteItems, shelfItems, entity } from '../models/items';
 import { getAdminBySession, checkAdminLogin as checkALogin, AdminSession } from '../models/admin';
-import { getUserBySession, checkUserLogin as checkULogin, UserSession } from '../models/users';
+import { checkUserLogin as checkULogin, UserSession } from '../models/users';
 
 const {router, entity:postItem} = Rst.initRoute({
   prefix:'/items',

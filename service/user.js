@@ -1,6 +1,7 @@
 import { getAdminBySession, AdminSession } from '../models/admin';
-import { getUserBySession, UserSession } from '../models/users';
+import { getUser, UserSession } from '../models/users';
 import Rst from '../utils/result';
+import Api from './api';
 
 const getAdmin = async (cookies)=>{
   var admin = await getAdminBySession(cookies.get(AdminSession))
@@ -16,7 +17,7 @@ const getSid = async (cookies)=>{
   if(admin && admin.id){
     return admin.sid;
   }else {
-    var user = await getUserBySession(cookies.get(UserSession))
+    var user = await getUser(cookies.get(UserSession))
     if(user && user.id){
       return user.sid
     }else {
@@ -82,7 +83,8 @@ module.exports = {
   getSid,
   getSidQuery,
   getQueryObj,
-  checkSuperAdmin
+  checkSuperAdmin,
+  ...Api
 }
 // await ctx.render('index', {
 //   title: 'Hello Koa 2!'

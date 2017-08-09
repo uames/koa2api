@@ -26,7 +26,8 @@ app.use(require('koa-views')(__dirname + '/views', {
 }))
 
 // 便捷的测试框架 restc, 唯一的问题是无法区分路由,所有路由都变成了接口, 无法加载html模板
-// app.use(require('restc').koa2())
+app.use(require('restc').koa2())
+
 
 // cors 设置
 // var whitelist = ['http://example1.com', 'http://example2.com']
@@ -40,6 +41,7 @@ app.use(require('koa-views')(__dirname + '/views', {
 //   }
 // }));
 
+
 // logger
 // app.use(async (ctx, next) => {
 //   const start = new Date()
@@ -50,7 +52,9 @@ app.use(require('koa-views')(__dirname + '/views', {
 
 
 // 将 process.env.UPDATE_MANIFEST 处理为空格字符串
-process.env.UPDATE_MANIFEST = (new Array(Number(process.env.UPDATE_MANIFEST?process.env.UPDATE_MANIFEST:0)).fill(" ")).join("");
+// process.env.UPDATE_MANIFEST = (new Array(Number(process.env.UPDATE_MANIFEST?process.env.UPDATE_MANIFEST:0)).fill(" ")).join("");
+
+
 // routes
 // 先导入fs模块，然后用readdirSync列出文件 这里可以用sync是因为启动时只运行一次，不存在性能问题:
 var files = require('fs').readdirSync(__dirname + '/routes');

@@ -27,7 +27,8 @@ const {Model: Users, ..._table} = initTable({table, fields, entity})
 var IDS = {}; // 已登录的普通用户对象列表,程序或服务器重启会导致用户掉线 (已修改,见 TAG[00002])
 const rebuildUser = user => {
   if(user){
-    return {id:user.id, sid: user.sid, sign: user.sign, name: user.name, balance: user.balance, phone: user.phone, createdAt:user.createdAt}
+    return {id:user.id, sid: user.sid, sign: user.sign, name: user.name, balance: user.balance,
+      phone: user.phone, checkpwd:user.checkpwd, createdAt:user.createdAt}
   }else{
     return {}
   }
@@ -41,7 +42,7 @@ const operateIDS = (user, login)=>{
     delete IDS[user.id]
   }
 }
-const getUserBySession = async (id)=>{
+const getUser = async (id)=>{
   if(IDS[id] && IDS[id].id){
     return IDS[id];
   }else {
@@ -59,7 +60,7 @@ const getUserBySession = async (id)=>{
 // 检查是否登录了用户帐号
 const checkUserLogin = async (ctx)=>{
   // ctx.cookies.set(UserSession, user.id); // 设置cookies
-  var user = await getUserBySession(ctx.cookies.get(UserSession)) // 获取cookies
+  var user = await getUser(ctx.cookies.get(UserSession)) // 获取cookies
   if(user && user.id){
     if(user.sid<1){
       ctx.response.body = Rst.fail("user.sid<1, 该用户未分配分校",401)
@@ -115,7 +116,8 @@ module.exports = {
   UserSession,
   login,
   logout,
-  getUserBySession,
+  getUser,
+  operateIDS,
   checkUserLogin,
   rebuildUser,
   updateByPhone

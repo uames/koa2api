@@ -40,7 +40,9 @@ router.get('/', async (ctx, next) => {
   await checkSuperAdmin({ctx, callBackFn:async ()=>{
     var query = ctx.query;
     query.where = {sid:{$ne:0}}
-    ctx.response.body = await Admin.retrieve({query:getQueryObj(query)});
+    var ads = await Admin.retrieve({query:getQueryObj(query)});
+    console.log(typeof ads);
+    ctx.response.body = ads;
   }});
 });
 // 超级管理员新增普通管理员
