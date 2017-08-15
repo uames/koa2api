@@ -18,6 +18,9 @@ const fetchGet = async ({ctx, api_get, phone, checkpwd, sign, callBackFn})=>{
             _d += data;
           });
           req.on('end',async ()=>{
+            console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            console.log(_d);
+            console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             // 规定返回的obj的格式 {balance: 用户在该系统中的当前积分}
             var {balance} = JSON.parse( _d );
             if(balance>-1){
