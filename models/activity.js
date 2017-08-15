@@ -12,8 +12,8 @@ fields = {
 entity = {
   "name" : "test",
   "sign" : "test123456",
-  "api_get" : "http://localhost:3000/users/testApiGet",
-  "api_post" : "http://localhost:3000/users/testApiPost",
+  "api_get" : "http://localhost:"+process.env.PORT+"/users/testApiGet",
+  "api_post" : "http://localhost:"+process.env.PORT+"/users/testApiPost",
   "url" : "http://baidu.com "
 };
 

@@ -6,6 +6,7 @@ var app = require('../app');
 var debug = require('debug')('demo:server');
 var http = require('http');
 var port = normalizePort(process.env.PORT || '3000');
+process.env.PORT = port;
 var server = http.createServer(app.callback());
 
 server.listen(port);

@@ -43,7 +43,7 @@ router.post('/testApiPost', async (ctx, next) => {
   if(cancelOrderId && !isNaN(cancelOrderId) && cancelOrderId>0){
     // 若 orderId>0 则需调用 /order/cancelOrder/:cancelOrderId/:phone/:checkpwd/:sign, 获取该订单使用了的积分: balance
     // 然后将 balance 增加到该用户的积分中 (即用户原来积分加上 balance 后作为用户积分)
-    var origin = 'http://localhost:3000'
+    var origin = 'http://localhost:'+process.env.PORT
     var uri = `/order/cancelOrder/${cancelOrderId}/${phone}/${checkpwd}/${sign}`
     await new Promise((resolve, reject) => {
       request.get(origin + uri, async (error, response, data)=>{
