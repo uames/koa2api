@@ -49,6 +49,9 @@ router.get('/', async (ctx, next) => {
 router.post('/', async (ctx, next) => {
   await checkSuperAdmin({ctx, callBackFn:async ()=>{
     var body = ctx.request.body;
+    if(body.account && body.password && body.sid){
+
+    }
     // name password相同, 或name sid相同的, 只能出现一次,
     var admins = await Admin.retrieve({query:{where:{account:body.account,$or:[{password:body.password}, {sid:body.sid}]}}});
     if(admins.length>0){

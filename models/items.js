@@ -1,4 +1,4 @@
-import {Sequelize, initTable} from '../utils/model'
+import {Sequelize, sequelize, initTable} from '../utils/model'
 
 const table = "items",
 fields = {
@@ -45,6 +45,21 @@ const getItems = async (queryObj)=>{
   });
   return items;
 }
+// const chgObj = (obj)=>{
+//   var str = '';
+//   for(var i in obj){
+//     str += i + "=" + obj[i]
+//   }
+// }
+// TODO 该方法未完成!!!
+const getItemList = async (queryObj)=>{
+  var items = []
+  await sequelize.query("select items.*, item_tag.name as tagName from items left join item_tag on items.tag_id=item_tag.id", { type: sequelize.QueryTypes.SELECT}).then(res => {
+      items = res;
+  })
+  return items;
+}
+
 const initItem = (item)=>{
   if(isNaN(item.price)){
     var spec = JSON.parse(item.specifications);
@@ -102,6 +117,7 @@ module.exports = {
   ..._table,
   getItem,
   getItems,
+  getItemList,
   createItem,
   updateItem,
   deleteItems,

@@ -1,6 +1,6 @@
 import Rst from '../utils/result';
 import { getSidQuery,getQueryObj } from '../service/user';
-import { fields, getItem, getItems, createItem, updateItem, deleteItems, shelfItems, entity } from '../models/items';
+import { fields, getItem, getItems, getItemList, createItem, updateItem, deleteItems, shelfItems, entity } from '../models/items';
 import { getAdminBySession, checkAdminLogin as checkALogin, AdminSession } from '../models/admin';
 import { checkUserLogin as checkULogin, UserSession } from '../models/users';
 
@@ -34,6 +34,11 @@ router.get('/', async (ctx, next) => {
 router.get('/all', async (ctx, next) => {
   var q = await getSidQuery({ctx, isItems:1})
   ctx.response.body = await getItems(getQueryObj({...q, ...itemTip})); // q.page, q.pSize, q.keyword, q.order
+});
+// 将 tag_name 一起查出来并返回
+router.get('/list', async (ctx, next) => {
+  var q = await getSidQuery({ctx, isItems:1})
+  ctx.response.body = await getItemList(q); // q.page, q.pSize, q.keyword, q.order
 });
 router.get('/:id', async (ctx, next) => {
   // TODO 这里未对获取单个商品进行 sid 的验证

@@ -165,11 +165,11 @@ router.put('/status/:status', async (ctx, next) => {
 // TODO 此处应加上订单状态为 0(订单已取消) 或者 3(订单已完成) 的订单才能删除的筛选条件,
 // 并获取修改的数量与ids长度对比, 若修改的数量小于ids长度,则返回 "状态非已取消或已完成的订单不可删除"
 router.del('/', async (ctx, next)=>{
-  await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
+  await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
     var ids = ctx.request.body;
     var where = {ids, status:-1}
-    if(admin.sid>0){
-      where.sid = admin.sid
+    if(user.sid>0){
+      where.sid = user.sid
     }
     var res = await Order.chgStatus(where)
     Rst.putRst([res], ctx);

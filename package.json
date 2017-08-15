@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "积分商城",
   "scripts": {
-    "initParams": "UPDATE_MANIFEST=1 PORT=8062 NODE_ENV=production DIR=/shop",
+    "initParams": "PORT=8062 NODE_ENV=production DIR=/shop",
     "start": "npm run initParams forever start ./bin/run.js",
     "restart": "npm run initParams forever restart ./bin/run.js",
-    "dev": "NODE_ENV=development DIR= nodemon ./bin/run.js",
-    "resetTables": "UPDATE_MANIFEST=1 BuildTables=1 npm run dev",
-    "resetTables-dangerous-operation": "UPDATE_MANIFEST=1 BuildTables=1 PORT=8062 NODE_ENV=production DIR=/shop node ./bin/run.js",
+    "startNoForever": "npm run initParams node ./bin/run.js",
+    "dev": "nodemon ./bin/run.js",
+    "resetTables": "BuildTables=1 npm run dev",
+    "resetTables-dangerous-operation": "npm run initParams BuildTables=1 node ./bin/run.js",
+    "view-test": "echo $npm_package_name",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

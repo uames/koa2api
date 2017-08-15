@@ -35,7 +35,11 @@ router.get('/:id', async (ctx, next) => {
     ctx.response.body = show();
   }else {
     await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
-      var tags = await Tag.retrieve({query:getQueryObj({where:{sid:admin.sid,id:ctx.params.id}})});
+      var where = {id:ctx.params.id}
+      if(admin.sid>0){
+        where.sid = admin.sid
+      }
+      var tags = await Tag.retrieve({query:getQueryObj({where})});
       if(tags.length){
         ctx.response.body = tags[0];
       }else {

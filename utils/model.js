@@ -141,5 +141,6 @@ const initTable = ({fields, table, entity})=>{
 }
 module.exports = {
   Sequelize,
+  sequelize,
   initTable
 }
