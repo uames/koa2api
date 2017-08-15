@@ -1,6 +1,6 @@
 import {Sequelize, initTable} from '../utils/model'
 
-var host = process.env.NODE_ENV=="production"?process.env.npm_package_origin:process.env.npm_package_originDev;
+var host = process.env.ORIGIN;
 const table = 'activity',
 fields = {
   name : {type : Sequelize.STRING, comment : '活动名称(用于可视化分别活动)'},
