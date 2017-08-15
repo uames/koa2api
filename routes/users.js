@@ -37,13 +37,13 @@ router.get('/testApiGet', async (ctx, next) => {
 // 测试 api_post 用于积分变化后同步到该系统, 设置于 /models/activity.js, 调用于 /service/api.js
 // 同步积分的接口, 要确保积分只能变小不能变大!!!(除了取消订单外)
 // 这个接口建议做成接收到要消费的积分,然后计算出减掉了消费的积分后的总分返回!避免因为有积分高频的操作而导致积分不准确!
+var origin = process.env.NODE_ENV=="production"?process.env.npm_package_origin:process.env.npm_package_originDev;
 router.post('/testApiPost', async (ctx, next) => {
   var {phone, checkpwd, sign, balance, cancelOrderId} = ctx.request.body
 
   if(cancelOrderId && !isNaN(cancelOrderId) && cancelOrderId>0){
     // 若 orderId>0 则需调用 /order/cancelOrder/:cancelOrderId/:phone/:checkpwd/:sign, 获取该订单使用了的积分: balance
     // 然后将 balance 增加到该用户的积分中 (即用户原来积分加上 balance 后作为用户积分)
-    var origin = "http://localhost" + (process.env.NODE_ENV=="production"?"/shop":"") + ":" + process.env.PORT;
     var uri = `/order/cancelOrder/${cancelOrderId}/${phone}/${checkpwd}/${sign}`
     await new Promise((resolve, reject) => {
       request.get(origin + uri, async (error, response, data)=>{

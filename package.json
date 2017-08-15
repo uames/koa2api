@@ -2,6 +2,8 @@
   "name": "shop",
   "version": "1.0.0",
   "description": "积分商城",
+  "origin":"http://oa.gzxueersi.com/shop",
+  "originDev":"http://localhost:3000",
   "scripts": {
     "initParams": "PORT=8062 NODE_ENV=production DIR=/shop",
     "start": "npm run initParams forever start ./bin/run.js",

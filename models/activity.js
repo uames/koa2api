@@ -1,6 +1,6 @@
 import {Sequelize, initTable} from '../utils/model'
 
-var host = "http://localhost" + (process.env.NODE_ENV=="production"?"/shop":"") + ":" + process.env.PORT;
+var host = process.env.NODE_ENV=="production"?process.env.npm_package_origin:process.env.npm_package_originDev;
 const table = 'activity',
 fields = {
   name : {type : Sequelize.STRING, comment : '活动名称(用于可视化分别活动)'},
@@ -14,7 +14,7 @@ entity = {
   "name" : "test",
   "sign" : "test123456",
   "api_get" : host+"/users/testApiGet",
-  "api_post" : host+process.env.PORT+"/users/testApiPost",
+  "api_post" : host+"/users/testApiPost",
   "url" : "http://baidu.com "
 };
 
