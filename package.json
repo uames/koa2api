@@ -8,7 +8,7 @@
     "restart": "npm run initParams forever restart ./bin/run.js",
     "startNoForever": "npm run initParams node ./bin/run.js",
     "dev": "nodemon ./bin/run.js",
-    "resetTables": "BuildTables=1 npm run dev",
+    "resetTables": "PORT=3000 BuildTables=1 npm run dev",
     "resetTables-dangerous-operation": "npm run initParams BuildTables=1 node ./bin/run.js",
     "view-test": "echo $npm_package_name",
     "test": "echo \"Error: no test specified\" && exit 1"
