@@ -1,7 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-const Hello = resolve => require(['../components/Hello.vue'], resolve)
-const Login = resolve => require(['../components/Login.vue'], resolve)
+const Hello = resolve => require(['./Hello.vue'], resolve)
+const Login = resolve => require(['./Login.vue'], resolve)
+const AccountManage = resolve => require(['./AccountManage.vue'], resolve)
+const Activity = resolve => require(['./Activity.vue'], resolve)
+const Order = resolve => require(['./Order.vue'], resolve)
+const Item = resolve => require(['./Item'], resolve)
+const Tag = resolve => require(['./Tag'], resolve)
 
 Vue.use(Router)
 
@@ -15,6 +20,26 @@ export default new Router({
       path: '/login',
       name: 'Login',
       component: Login
+    }, {
+      path: '/AccountManage',
+      name: 'AccountManage',
+      component: AccountManage
+    }, {
+      path: '/Activity',
+      name: 'Activity',
+      component: Activity
+    }, {
+      path: '/Order',
+      name: 'Order',
+      component: Order
+    }, {
+      path: '/Item',
+      name: 'Item',
+      component: Item
+    }, {
+      path: '/Tag',
+      name: 'Tag',
+      component: Tag
     }
   ]
 })

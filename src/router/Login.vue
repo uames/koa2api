@@ -3,7 +3,6 @@
     <div class="form-wrap">
       <div class="form-header">登陆</div>
       <el-form ref="form" :model="form" rule="rule" label-width="80px">
-        
         <el-form-item label="账号名称">
           <el-input v-model="form.account"></el-input>
         </el-form-item>
@@ -11,14 +10,13 @@
           <el-input v-model="form.password" type="password"></el-input>
         </el-form-item>
         <el-form-item >
-          <el-button type="primary" @click="submitForm('form')">登陆</el-button>
+          <el-button type="primary" @click="submitForm()">登陆</el-button>
         </el-form-item>
       </el-form>
     </div>
   </div>
 </template>
 <script>
-import webInterface from '../webinterface/webinterface'
 export default {
   name: 'login',
   data () {
@@ -33,13 +31,8 @@ export default {
     onSubmit (e) {
       console.log('submit!')
     },
-    submitForm (formName) {
-      this.$http.post(webInterface.adminLogin, this.form)
-      .then((res) => {
-        if (res.body.sid === 0) {
-          this.$router.push('/accountManage')
-        }
-      })
+    submitForm () {
+      this.$store.dispatch('login', this.form)
     }
   }
 }
