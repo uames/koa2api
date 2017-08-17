@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "description": "积分商城",
   "scripts": {
+    "initDev":"ORIGIN=http://localhost:3000",
+    "resetTables": "BuildTables=1 npm run initDev npm run dev",
+    "dev": "npm run initDev nodemon ./bin/run.js",
+
     "initParams": "ORIGIN=http://oa.gzxueersi.com/shop PORT=8062 NODE_ENV=production DIR=/shop",
     "start": "npm run initParams forever start ./bin/run.js",
     "restart": "npm run initParams forever restart ./bin/run.js",
     "startNoForever": "npm run initParams node ./bin/run.js",
-    "dev": "ORIGIN=http://localhost:3000 nodemon ./bin/run.js",
-    "resetTables": "ORIGIN=http://localhost:3000 BuildTables=1 npm run dev",
-    "resetTables-dangerous-operation": "npm run initParams BuildTables=1 node ./bin/run.js",
+    "resetTables-dangerous-operation": "BuildTables=1 npm run initParams node ./bin/run.js",
     "view-test": "echo $npm_package_name",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

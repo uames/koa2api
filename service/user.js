@@ -40,7 +40,7 @@ const getSidQuery = async ({ctx, isItems})=>{
 }
 const getQueryObj = ({page,pSize,keyword,order,status,where,noPhone,hasDesc,noOffset})=>{
   page = Number(page) || 1;
-  pSize = Number(pSize) || 10;
+  pSize = Number(pSize) || 100;
   var _like = {$like: "%"+keyword+"%"}, items = [];
   var _where = {};
   if(keyword){

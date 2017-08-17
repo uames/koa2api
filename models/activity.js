@@ -1,6 +1,6 @@
 import {Sequelize, initTable} from '../utils/model'
 
-var host = process.env.ORIGIN;
+var origin = process.env.ORIGIN;
 const table = 'activity',
 fields = {
   name : {type : Sequelize.STRING, comment : '活动名称(用于可视化分别活动)'},
@@ -13,8 +13,8 @@ fields = {
 entity = {
   "name" : "test",
   "sign" : "test123456",
-  "api_get" : host+"/users/testApiGet",
-  "api_post" : host+"/users/testApiPost",
+  "api_get" : origin+"/users/testApiGet",
+  "api_post" : origin+"/users/testApiPost",
   "url" : "http://baidu.com "
 };
 
