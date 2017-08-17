@@ -8,7 +8,7 @@ import qs from 'query-string'
 
 Vue.use(VueResource)
 
-const host = location.host.match('localhost') ? '/api' : ''
+const host = location.host.match('localhost') ? '/api' : '/shop'
 const methods = ['post', 'get', 'delete', 'put']
 
 // 需要使用四个http动词的api接口
