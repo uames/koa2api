@@ -19,7 +19,7 @@ app.use(require('koa-logger')())
 
 // koa-static  example: http://localhost:3000/js/test.js
 // app.use(require('koa-static')(__dirname+"/public", {defer: true}))
-app.use( require('koa-mount')((process.env.DIR?process.env.DIR:"/"), require('koa-static')(__dirname+"/public")) )
+app.use( require('koa-mount')(process.env.DIR?process.env.DIR:"/", require('koa-static')(__dirname+"/public")) )
 // app.use(async (ctx) => {
 //   if ('/' == ctx.path) return ctx.body = 'Try GET /package.json';
 //   await require('koa-send')(ctx, ctx.path, { root: __dirname + '/public' });
