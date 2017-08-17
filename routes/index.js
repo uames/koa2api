@@ -4,9 +4,9 @@ const {router} = Rst.initRoute({
 });
 
 router.get('/admin', async (ctx, next) => {
-  await ctx.render('admin', {
+  // await ctx.render('admin', {
     // title: 'Hello Koa 2!'
-  })
+  // })
 })
 
 router.get('/bindphone/:checkpwd', async (ctx, next) => {
