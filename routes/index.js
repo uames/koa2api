@@ -3,8 +3,8 @@ const {router} = Rst.initRoute({
   prefix:''
 });
 
-router.get('/', async (ctx, next) => {
-  await ctx.render('index', {
+router.get('/admin', async (ctx, next) => {
+  await ctx.render('admin', {
     // title: 'Hello Koa 2!'
   })
 })

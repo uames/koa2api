@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "积分商城",
   "scripts": {
-    "initDev":"ORIGIN=http://localhost:3000",
+    "initDev": "ORIGIN=http://localhost:3000",
     "resetTables": "BuildTables=1 npm run initDev npm run dev",
     "dev": "npm run initDev nodemon ./bin/run.js",
-
     "initParams": "ORIGIN=http://oa.gzxueersi.com/shop PORT=8062 NODE_ENV=production DIR=/shop",
     "start": "npm run initParams forever start ./bin/run.js",
     "restart": "npm run initParams forever restart ./bin/run.js",
@@ -26,6 +25,7 @@
     "koa-bodyparser": "^4.2.0",
     "koa-json": "^2.0.2",
     "koa-logger": "^3.0.0",
+    "koa-mount": "^3.0.0",
     "koa-onerror": "^3.1.0",
     "koa-router": "^7.2.1",
     "koa-session2": "^2.2.4",
