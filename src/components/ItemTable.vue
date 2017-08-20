@@ -5,12 +5,13 @@
         <el-input
           placeholder="搜索"
           icon="search"
-          v-model="keyword"
+          v-model="key"
           :on-icon-click="handleIconClick">
         </el-input>
       </div>
     </div> 
     <div class="table">
+      <el-button @click="createItem">添加商品</el-button>
       <el-row class="table-row">
         <el-col :md="9" :lg="9" class="table-row-item">商品名称</el-col>
         <el-col :md="3" :lg="3" class="table-row-item">商品价格</el-col>
@@ -37,29 +38,29 @@
 
 <script>
 import ItemTableRow from './ItemTableRow'
+import bus from '../bus/bus'
 export default {
   props: [
-    'list'
+    'list',
+    'keyword'
   ],
-  computed: {
-    keyword: {
-      get () {
-        return this.$store.state.item.keyword
-      },
-      set (value) {
-      }
+  data () {
+    return {
+      key: this.keyword
     }
   },
   components: {
     'item-table-row': ItemTableRow
   },
   methods: {
-    handleIconClick (value) {
-      let key = this.keyword
-      key = key || undefined
+    handleIconClick () {
+      let {key} = this
       this.$store.dispatch('getAllItems', {
         keyword: key
       })
+    },
+    createItem () {
+      bus.$emit('createItem')
     }
   }
 }

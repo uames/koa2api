@@ -25,7 +25,7 @@ export default {
       if (payload.page) {
         state.page = payload.page
       }
-      if (payload.keyword) {
+      if (payload.keyword || payload.keyword === '') {
         state.keyword = payload.keyword
       }
     },
