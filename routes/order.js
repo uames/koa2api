@@ -1,6 +1,7 @@
 import Rst from '../utils/result';
 import Order, {entity} from '../models/order';
 import Activity from '../models/activity';
+import request from 'request'
 import { fetchPost, getSid, getSidQuery,getQueryObj } from '../service/user';
 import Users, { operateIDS, checkUserLogin as checkULogin } from '../models/users';
 import { checkAdminLogin as checkALogin } from '../models/admin';
@@ -39,6 +40,7 @@ router.get('/all', async (ctx, next) => {
     ctx.body = await Order.retrieve({query:getQueryObj(q)}); // q.page, q.pSize, q.keyword, q.order
   }});
 });
+// 取消订单有两种, 一种是要调用api_post, 另一种是不存在api_post的
 // status : -1已删除订单(不可见),0订单已取消
 // 订单的取消操作, 这里只是发起请求第三方的接口, 真正取消是由第三方接口调用 /order/cancelOrder 接口
 // 这里建议使用两步验证: 返回积分的时候, 要将积分同步到接入积分商城的系统,
@@ -57,9 +59,33 @@ router.put('/cancel', async (ctx, next) => {
       var acty = await Activity.retrieve({id:user.sid});
       if(acty.id>0){
         var {api_post,sign} = acty;
-        await fetchPost({ctx, api_post, phone:user.phone, checkpwd:user.checkpwd, sign, orderId:id, callBackFn:async (data)=>{
-          ctx.body = Rst.suc("取消成功")
-        }})
+        // 取消订单有两种, 一种是要调用api_post, 另一种是不存在api_post的 TODO
+        // 区别就是, 存在api_post的系统, 有记录用户使用的积分, 而不存在api_post的系统, 用户使用的积分记录在积分商城,
+        // 不存在api_post的系统, 只提供api_get接口获取该用户获取过的总积分(即包含已消耗的积分),需要减去使用了的积分才是该用户当前积分
+        if(sign=="lecture" || sign=="test"){
+          var uri = `/order/cancelOrder/${ord.id}/${ord.phone}/${user.checkpwd}/${sign}`
+          await new Promise((resolve, reject) => {
+            request.get(process.env.ORIGIN + uri, async (error, response, data)=>{
+              // 这里将用 user.used_balance 减掉 data.balance 作为 used_balance 最新的值
+              if(user.used_balance > data.balance){
+                user.used_balance -= data.balance
+              }else {
+                user.used_balance = 0
+              }
+              var uRst = await Users.update({id:user.id, used_balance:user.used_balance})
+              if(uRst[0]>0){
+                ctx.body = Rst.suc("取消成功")
+              }else {
+                ctx.body = Rst.suc("取消失败")
+              }
+              resolve()
+            })
+          })
+        }else {
+          await fetchPost({ctx, api_post, phone:user.phone, checkpwd:user.checkpwd, sign, orderId:id, callBackFn:async (data)=>{
+            ctx.body = Rst.suc("取消成功")
+          }})
+        }
       }else {
         ctx.body = Rst.fail("活动不存在")
       }
@@ -70,6 +96,7 @@ router.put('/cancel', async (ctx, next) => {
   }});
 });
 // 提供给第三方系统取消订单, 除了修改status之外, 还需要将 订单 包含的积分返还给用户!
+// 若第三方系统不调用此接口,则需要在/order/cancel接口加入该系统的sign值作为例外,并在该处调用此接口
 router.get('/cancelOrder/:orderId/:phone/:checkpwd/:sign', async (ctx, next) => {
   // 检查 phone 和 checkpwd 和 sign 对应的用户是否存在, 获取其user_id
   // 然后将 user_id 及 orderId 对应的 status 改为0, 将 price 作为 balance 的值返回
@@ -145,6 +172,8 @@ router.put('/status/:status', async (ctx, next) => {
   var status = ctx.params.status
   if(status==-1 || status==0){
     ctx.body = Rst.fail("取消或删除订单请使用专用接口")
+  }if(status==2){
+    ctx.body = Rst.fail("该订单已发货,若要取消,请收货后再申请退货")
   }else {
     const setStatus = async (sid)=>{
       var ids = ctx.request.body;

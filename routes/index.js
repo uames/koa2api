@@ -10,9 +10,9 @@ router.get('/admin', async (ctx, next) => {
 })
 
 router.get('/bindphone/:checkpwd', async (ctx, next) => {
-  ctx.body = {
-    bb:"bb"
-  }
+  await ctx.render('bindPhone', {
+    title: 'Hello Koa 2!'
+  })
 })
 
 

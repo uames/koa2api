@@ -2,7 +2,9 @@ import {Sequelize, initTable} from '../utils/model'
 
 const table = 'address',
 fields = {
-  user_id : {type : Sequelize.INTEGER, comment : '员工id'},
+  name :  {type : Sequelize.STRING, comment : '收货人名称'},
+  phone : {type: Sequelize.STRING, validate: {isNumeric: true}, comment : '收货人手机' },
+  user_id : {type : Sequelize.INTEGER, comment : '用户id'},
   province :  {type : Sequelize.STRING, comment : '省'},
   city :  {type : Sequelize.STRING, comment : '市'},
   district :  {type : Sequelize.STRING, comment : '区或镇'},
@@ -15,7 +17,9 @@ entity = {
   "city" : "广州市",
   "district" : "天河区",
   "details" : "员村三横路54号",
-  "status" : 1
+  "status" : 1,
+  "name" : "test",
+  "phone" : "18825053886"
 };
 const {Model:Address, ..._table} = initTable({table, fields, entity})
 

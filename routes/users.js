@@ -71,6 +71,13 @@ router.get('/jumpLogin/:sign/:account/:checkpwd', async (ctx, next) => {
       // 这里调用 activity 表中 sid 为 user.sid 的积分同步接口, 将 user.phone 和 checkpwd 传过去获取数据
       var api_get = activitys[0]?activitys[0]['api_get']:'';
       await fetchGet({ctx, api_get, phone, checkpwd, sign, callBackFn:async ({balance})=>{
+        if(sign=='lecture'){
+          if(balance > user.used_balance){
+            balance -= user.used_balance
+          }else {
+            balance = 0
+          }
+        }
         await Users.update({id:user.id, balance});
         // TODO 这里就应该跳转进入登录后的页面了
         // ctx.redirect()
@@ -82,7 +89,6 @@ router.get('/jumpLogin/:sign/:account/:checkpwd', async (ctx, next) => {
   }else {
     ctx.body = Rst.fail("sign对应的活动不存在")
   }
-
 });
 // 为用户创建帐号(接入的系统在用户绑定手机号码的同时,或者跳转登录之前,调用此方法)
 router.post('/', async (ctx, next) => {

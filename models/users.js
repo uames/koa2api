@@ -9,6 +9,7 @@ fields = {
   checkpwd :  {type : Sequelize.STRING, comment : '跳转密码,用于保存接入的系统的密码,跳转时验证该密码正确即可'},
   address : {type: Sequelize.STRING, comment : '当前默认收货地址' },
   balance : {type : Sequelize.INTEGER, comment : '积分余额'},
+  used_balance : {type : Sequelize.INTEGER, comment : '该用户已消费的积分', defaultValue: 0,},
   sid : {type : Sequelize.INTEGER, defaultValue: -1, comment : "此项值根据sign在activity表中获取到,用户所属的活动(分校)id, -1表示未分配, 0表示超级用户,可查看所有分校产品"}
 },
 entity = {

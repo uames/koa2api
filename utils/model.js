@@ -70,11 +70,13 @@ const initTable = ({fields, table, entity})=>{
   const Model = defineModel(table, fields);
 
   const build = ()=>{
-    Model.sync({force: true}).then(() => {
-      if(entity && !isEmptyObject(entity)){
-        return Model.create(entity);
-      }
-    })
+    if(table=='users' || table=="address"){
+      Model.sync({force: true}).then(() => {
+        if(entity && !isEmptyObject(entity)){
+          return Model.create(entity);
+        }
+      })
+    }
   }
   // 增 C
   const create = async (model)=>{

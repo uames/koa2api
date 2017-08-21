@@ -1,0 +1,48 @@
+<!doctype html>
+<!-- 讲座系统的教师端页面 -->
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="format-detection" content="email=no">
+  <meta name="format-detection" content="address=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>绑定手机号码</title>
+  <link rel="shortcut icon" href="" type="image/x-icon">
+  <link rel="stylesheet" href="//cdn.bootcss.com/weui/1.1.1/style/weui.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/jquery-weui/1.0.1/css/jquery-weui.min.css">
+  <!-- <link href="https://cdn.bootcss.com/layer/3.0.1/mobile/need/layer.css?2.0" type="text/css" rel="styleSheet"> -->
+  <!-- <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script> -->
+  <style media="screen">
+
+  </style>
+</head>
+<body>
+  <div class="">
+    test
+  </div>
+</body>
+<script src="//cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-weui/1.0.1/js/jquery-weui.min.js"></script>
+
+<script type="text/javascript">
+  $(function(){
+    window.app = {};
+    app.dynamicLoadingJs=function(e,d){var c=document.createElement("script");var b=document.getElementsByTagName("head")[0];c.src=e;if(typeof d==="function"){var a;c.onload=c.onreadystatechange=function(){if(!a&&(!c.readyState||/loaded|complete/.test(c.readyState))){c.onload=c.onreadystatechange=null;a=true;d()}}}b.appendChild(c)};
+
+    app.resPath = 'http://cdn.gzpeiyou.com/single/';
+    if(location.href.indexOf('/topic')>-1){
+      app.resPath = '../view/dist/';
+    }
+
+    // app.dynamicLoadingJs(app.resPath+'js/topic/init.js?bust='+new Date().getTime());
+  });
+
+
+</script>
+
+</html>
