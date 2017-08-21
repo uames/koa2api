@@ -90,6 +90,7 @@ router.get('/jumpLogin/:sign/:account/:checkpwd', async (ctx, next) => {
     ctx.body = Rst.fail("sign对应的活动不存在")
   }
 });
+
 // 为用户创建帐号(接入的系统在用户绑定手机号码的同时,或者跳转登录之前,调用此方法)
 router.post('/', async (ctx, next) => {
   // 这里不需要验证,因为每次登录或消费的时候会验证积分
@@ -132,21 +133,25 @@ router.get('/', async (ctx, next) => {
     ctx.body = await Users.retrieve({query:getQueryObj(q)}); // q.page, q.pSize, q.keyword, q.order
   }});
 });
-
-
 router.get('/:id', async (ctx, next) => {
-  await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
-    if(ctx.params.id=='show'){
-      ctx.body = show();
-    }else {
-      var userList = await Users.retrieve({query:{where:{id:ctx.params.id,sid:admin.sid}}})
-      if(userList.length){
-        ctx.body = Users.rebuildUser(userList[0]);
-      }else {
-        ctx.body = Rst.fail("该用户不属于本活动或该用户不存在")
-      }
-    }
-  }});
+  if(ctx.params.id=='show'){
+    ctx.body = show();
+  }else if(ctx.params.id=='me'){
+    await checkULogin(ctx).then(async ({flag,user})=>{ if(flag){
+      ctx.body = user
+    }});
+  }else {
+    await checkALogin(ctx).then(async ({flag,admin})=>{ if(flag){
+
+        var userList = await Users.retrieve({query:{where:{id:ctx.params.id,sid:admin.sid}}})
+        if(userList.length){
+          ctx.body = Users.rebuildUser(userList[0]);
+        }else {
+          ctx.body = Rst.fail("该用户不属于本活动或该用户不存在222")
+        }
+    }});
+  }
+
 });
 router.post('/login', async (ctx, next) => {
     var phone = ctx.request.body.account || '',
