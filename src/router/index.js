@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-const Hello = resolve => require(['./Hello.vue'], resolve)
 const Login = resolve => require(['./Login.vue'], resolve)
 const AccountManage = resolve => require(['./AccountManage.vue'], resolve)
 const Activity = resolve => require(['./Activity.vue'], resolve)
@@ -14,8 +13,9 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Hello',
-      component: Hello
+      redirect: to => {
+        return '/login'
+      }
     }, {
       path: '/login',
       name: 'Login',

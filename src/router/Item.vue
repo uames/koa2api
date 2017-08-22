@@ -17,7 +17,7 @@
         </el-menu>
       </el-col>
       <el-col :md="20" :lg="20">
-        <item-table :list="list" v-if="!detail">
+        <item-table :list="list" v-if="!detail" :keyword="keyword" v-on:modify="modify">
         </item-table>
         <div class="detail" v-if="detail">
           <div class="bread-header">
@@ -29,50 +29,38 @@
               </el-input>
             </el-form-item>
             <el-form-item label="商品详情">
-  
               <el-input type="textarea" autosize v-model="goods.details" :disabled="detail.disabled"></el-input>
-  
             </el-form-item>
             <el-form-item label="商品描述">
               <el-input type="textarea" autosize v-model="goods.description" :disabled="detail.disabled"></el-input>
             </el-form-item>
             <el-form-item label="商品规格">
-  
               <div>
                 {{goods.specifications}}
               </div>
-  
             </el-form-item>
             <el-form-item label="商品价格">
-  
               <el-input-number v-model="goods.price" :disabled="detail.disabled"></el-input-number>
-  
             </el-form-item>
             <el-form-item label="商品类目">
-  
               <el-select v-model="goods.tag_id" :disabled="detail.disabled">
-                <el-option v-for="i of tag"
+                <el-option v-for="i in tag"
                 :label="i.name"
                 :key="i.id"
                 :value="i.id"
                 ></el-option>
               </el-select>
-  
             </el-form-item>
             <el-form-item label="商品状态">
-  
               <el-select v-model="goods.status" :disabled="detail.disabled">
-                <el-option v-for="item of [{value: 0, label: '上架'},{value: 1, label: '下架'}]" :key="item.label" :value="item.value" :label="item.label"></el-option>
+                <el-option v-for="item in [{value: 0, label: '上架'},{value: 1, label: '下架'}]" :key="item.label" :value="item.value" :label="item.label"></el-option>
               </el-select>
-  
             </el-form-item>
             <el-form-item label="商品销量">
-  
               <el-input :disabled="true" :value="goods.buycount"></el-input>
-  
             </el-form-item>
             <el-form-item v-if="!detail.disabled">
-              <el-button @click="putItem">
+              <el-button @click="submitItem">
                 提交
               </el-button>
             </el-form-item>
@@ -87,7 +75,14 @@
 import Header from '../components/Header'
 import {mapState, mapGetters} from 'vuex'
 import ItemTable from '../components/ItemTable'
+import bus from '../bus/bus'
 export default {
+  data () {
+    return {
+      goods: undefined,
+      detail: undefined
+    }
+  },
   computed: {
     ...mapState({
       account: state => state.isLogin.account,
@@ -95,23 +90,9 @@ export default {
       page: state => state.item.page,
       keyword: state => state.item.keyword,
       status: state => state.item.status,
-      detail: state => state.item.detail,
       disabled: state => state.item.detail.disabled,
       tag: state => state.tag.list
     }),
-    goods () {
-      let good = this.list.filter((item) => {
-        if (this.detail) {
-          return item.id === this.detail.id
-        } else {
-          return []
-        }
-      }).map(item => {
-        item.status = Number(item.status)
-        return item
-      })
-      return good[0]
-    },
     ...mapGetters({
       list: 'listGetter'
     })
@@ -131,10 +112,20 @@ export default {
       }
     },
     goback () {
-      this.$store.commit('gotoDetail', undefined)
+      this.detail = undefined
     },
-    putItem () {
-      this.$store.dispatch('putItems', this.goods)
+    modify (id) {
+      let {list} = this
+      this.goods = list.filter(item => {
+        return item.id === id
+      })[0]
+    },
+    submitItem () {
+      if (this.detail.id) {
+        this.$store.dispatch('putItems', this.goods)
+      } else {
+        this.$store.dispatch('postItems', this.goods)
+      }
     }
   },
   beforeRouteEnter (to, from, next) {
@@ -143,12 +134,30 @@ export default {
       vm.$store.dispatch('getAllTag', {})
     })
   },
-  beforeRouteLeave (to, from, next) {
-    console.log('eh')
-    this.$store.commit('gotoDetail', undefined)
-    next()
+  beforeCreate () {
+    var that = this
+    bus.$on('modifyItem', function (obj) {
+      that.goods = that.$store.state.item.list.filter((item) => {
+        return item.id === obj.id
+      }).map((item) => {
+        item.status = Number(item.status)
+        return item
+      })[0]
+      that.detail = obj
+    })
+    bus.$on('createItem', function () {
+      that.goods = {
+        status: 0,
+        tag_id: 1,
+        price: 0
+      }
+      that.detail = {
+        disabled: false
+      }
+    })
   }
 }
+
 </script>
 
 <style>
