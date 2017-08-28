@@ -7,8 +7,8 @@ fields = {
   sign : {type : Sequelize.STRING,comment : `活动标识,值唯一,创建后无法修改. 接入活动后,从活动跳转登录积分商城要传sign值创建普通管理员时.
     为管理员创建新活动时,需填入此项值(与sid对应),然后copy到对应的活动项目中(生成数据后不可修改,否则会对应不上)`},
   api_get : {type : Sequelize.STRING, comment : '该活动同步积分的接口'},
-  api_post : {type : Sequelize.STRING, comment : '该活动修改积分的接口'},
-  url : {type : Sequelize.STRING, comment : '该活动的首页地址'},
+  api_post : {type : Sequelize.STRING, defaultValue: "", comment : '该活动修改积分的接口'},
+  url : {type : Sequelize.STRING, defaultValue: "", comment : '该活动的首页地址'},
 },
 entity = {
   "name" : "test",

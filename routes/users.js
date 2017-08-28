@@ -108,7 +108,7 @@ router.post('/', async (ctx, next) => {
         if(users.length>0){ // 有的话,使它们的password值一致
           password = users[0].password;
         }
-        if(password.length==0){ // 若没有password且没有其它活动相同phone的用户
+        if(!password || password.length==0){ // 若没有password且没有其它活动相同phone的用户
           password = '5201314';
         }
         var user = await Users.create({...ctx.request.body, balance, sid, password});

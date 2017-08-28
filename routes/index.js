@@ -10,7 +10,7 @@ router.get('/admin', async (ctx, next) => {
 })
 router.post('/index.php/Lecture/Datas/sms', async (ctx, next) => {
   ctx.body = {
-    code:"123456"
+    code:8246
   }
 })
 router.get('/bindphone', async (ctx, next) => {

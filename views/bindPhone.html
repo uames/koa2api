@@ -64,14 +64,31 @@
   $(function(){
     window.app = {};
     app.dynamicLoadingJs=function(e,d){var c=document.createElement("script");var b=document.getElementsByTagName("head")[0];c.src=e;if(typeof d==="function"){var a;c.onload=c.onreadystatechange=function(){if(!a&&(!c.readyState||/loaded|complete/.test(c.readyState))){c.onload=c.onreadystatechange=null;a=true;d()}}}b.appendChild(c)};
-    // app.dynamicLoadingJs(app.resPath+'js/topic/init.js?bust='+new Date().getTime());
+    app.dynamicLoadingJs('https://unpkg.com/alloylever@1.0.2/alloy-lever.js',function(){
+      AlloyLever.config({
+          cdn:'//s.url.cn/qqun/qun/qqweb/m/qun/confession/js/vconsole.min.js',  //vconsole的CDN地址
+          // reportUrl: "//a.qq.com",  //错误上报地址
+          // reportPrefix: 'qun',    //错误上报msg前缀，一般用于标识业务类型
+          // reportKey: 'msg',        //错误上报msg前缀的key，用户上报系统接收存储msg
+          // otherReport: {              //需要上报的其他信息
+          //     uin: 491862102
+          // },
+          entry:"#username"          //请点击这个DOM元素6次召唤vConsole。//你可以通过AlloyLever.entry('#entry2')设置多个机关入口召唤神龙
+      })
+    });
 
-    app.host = 'http://oa.gzpeiyou.com/shop'; // 作为接口调用
-    app.resPath = 'http://oa.gzpeiyou.com/shop'; // 作为资源调用
+    app.host = 'http://oa.gzxueersi.com/shop'; // 作为接口调用
+    app.resPath = 'http://oa.gzxueersi.com/shop'; // 作为资源调用
     app.origin = 'http://uc.gzxueersi.com';
 
+    function getUrlParam(name) {
+     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+     var r = window.location.search.substr(1).match(reg); //匹配目标参数
+     if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+    app.sign = getUrlParam('sign');
+    app.unionid = getUrlParam('unionid');
 
-    app.
     if(location.origin.indexOf('localhost')>0){
       app.origin = '';
       app.host = '';
@@ -86,7 +103,9 @@
             phone:phone
           },
           type:'POST',
+          dataType: 'json',
           success:function(rst){
+            console.log(rst);
             if(rst && rst.code){
               app.phone = phone;
               app.phoneCode = rst.code;
@@ -104,7 +123,7 @@
                 }
               }, 980);
             }else {
-              $.toast("发送失败,请稍后再试");
+              $.toast("发送失败,<br/>请稍后再试");
             }
           }
         });
@@ -127,12 +146,14 @@
             unionid: app.unionid
           },
           type:'POST',
+          dataType: 'json',
           success:function(rst){
             // if(rst){
               // 绑定用户成功, 在积分商城新建用户
               $.ajax({
                 url: app.host+'/users',
                 type: "POST",
+                dataType: 'json',
                 data: {
                   phone: app.phone, checkpwd: app.unionid, sign: app.sign, name: app.name, address: ""
                 },
@@ -141,7 +162,7 @@
                     // 新建用户成功, 跳转进入积分商城
                     location.href = app.host + '/users/jumpLogin/'+app.sign+'/'+app.phone+'/'+app.unionid;
                   }else {
-                    $.toast(rst.errMsg, 'text');
+                    $.toast(rst.msg, 'text');
                   }
                 }
               })
