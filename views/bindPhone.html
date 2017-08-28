@@ -18,12 +18,43 @@
   <!-- <link href="https://cdn.bootcss.com/layer/3.0.1/mobile/need/layer.css?2.0" type="text/css" rel="styleSheet"> -->
   <!-- <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script> -->
   <style media="screen">
-
+    .hide { display: none; }
+    .mt20 { margin-top: 20px; }
   </style>
 </head>
 <body>
   <div class="">
-    test
+    <div><h3 style="margin:10px;text-align:center">绑定手机号码</h3></div>
+    <div class="weui-cells weui-cells_form">
+      <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">姓名</label></div>
+        <div class="weui-cell__bd">
+          <input id="username" class="weui-input" type="text" placeholder="请输入您的姓名">
+        </div>
+      </div>
+      <div class="weui-cell weui-cell_vcode">
+        <div class="weui-cell__hd">
+          <label class="weui-label">手机号</label>
+        </div>
+        <div class="weui-cell__bd">
+          <input id="phone" class="weui-input" type="number" value="18825053886" placeholder="请输入手机号">
+        </div>
+        <div class="weui-cell__ft">
+          <button id="getCode" class="weui-vcode-btn">获取验证码</button>
+          <button id="second" class="weui-vcode-btn hide"><i> 60 </i> 秒</button>
+        </div>
+      </div>
+      <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">验证码</label></div>
+        <div class="weui-cell__bd">
+          <input id="code" class="weui-input" type="number" placeholder="请输入验证码">
+        </div>
+      </div>
+
+
+      <div class="weui-cell weui-cell__ft"></div>
+      <a id="savePhone" href="javascript:;" class="weui-btn weui-btn_primary">提交</a>
+    </div>
   </div>
 </body>
 <script src="//cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
@@ -33,13 +64,96 @@
   $(function(){
     window.app = {};
     app.dynamicLoadingJs=function(e,d){var c=document.createElement("script");var b=document.getElementsByTagName("head")[0];c.src=e;if(typeof d==="function"){var a;c.onload=c.onreadystatechange=function(){if(!a&&(!c.readyState||/loaded|complete/.test(c.readyState))){c.onload=c.onreadystatechange=null;a=true;d()}}}b.appendChild(c)};
+    // app.dynamicLoadingJs(app.resPath+'js/topic/init.js?bust='+new Date().getTime());
 
-    app.resPath = 'http://cdn.gzpeiyou.com/single/';
-    if(location.href.indexOf('/topic')>-1){
-      app.resPath = '../view/dist/';
+    app.host = 'http://oa.gzpeiyou.com/shop'; // 作为接口调用
+    app.resPath = 'http://oa.gzpeiyou.com/shop'; // 作为资源调用
+    app.origin = 'http://uc.gzxueersi.com';
+
+
+    app.
+    if(location.origin.indexOf('localhost')>0){
+      app.origin = '';
+      app.host = '';
     }
 
-    // app.dynamicLoadingJs(app.resPath+'js/topic/init.js?bust='+new Date().getTime());
+    $("#getCode").click(function(){
+      var phone = $("#phone").val();
+      if(/^1[0-9]{10}$/.test(phone)){
+        $.ajax({
+          url:app.origin+'/index.php/Lecture/Datas/sms',
+          data:{
+            phone:phone
+          },
+          type:'POST',
+          success:function(rst){
+            if(rst && rst.code){
+              app.phone = phone;
+              app.phoneCode = rst.code;
+              $.toast("验证码发送成功");
+              $("#getCode").hide();
+              $("#second").show();
+              app.second = 60;
+              app.intervalId = setInterval(function () {
+                if(app.second>0){
+                  app.second--;
+                  $("#second i").text(app.second)
+                }else {
+                  $("#second").hide().find("i").text('60');
+                  $("#getCode").show();
+                }
+              }, 980);
+            }else {
+              $.toast("发送失败,请稍后再试");
+            }
+          }
+        });
+      }else {
+        $.toast('请输入正确的<br>手机号码','text');
+      }
+
+
+    });
+
+    $("#savePhone").click(function(){
+      app.name = $("#username").val();
+      if(app.name.length<2){
+        $.toast('请输入您的姓名','text');
+      }else if(app.phoneCode == $("#code").val()){
+        $.ajax({
+          url:app.origin+'/index.php/Lecture/Datas/updatePhone',
+          data:{
+            phone: app.phone,
+            unionid: app.unionid
+          },
+          type:'POST',
+          success:function(rst){
+            // if(rst){
+              // 绑定用户成功, 在积分商城新建用户
+              $.ajax({
+                url: app.host+'/users',
+                type: "POST",
+                data: {
+                  phone: app.phone, checkpwd: app.unionid, sign: app.sign, name: app.name, address: ""
+                },
+                success: function(rst){
+                  if(rst.errCode==0){
+                    // 新建用户成功, 跳转进入积分商城
+                    location.href = app.host + '/users/jumpLogin/'+app.sign+'/'+app.phone+'/'+app.unionid;
+                  }else {
+                    $.toast(rst.errMsg, 'text');
+                  }
+                }
+              })
+            // }else {
+            //   $.toast(rst.msg, 'text');
+            // }
+          }
+        });
+      }else {
+        $.toast('验证码不正确','text');
+      }
+    });
   });
 
 

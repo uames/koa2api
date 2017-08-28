@@ -8,11 +8,13 @@ router.get('/admin', async (ctx, next) => {
     // title: 'Hello Koa 2!'
   // })
 })
-
-router.get('/bindphone/:checkpwd', async (ctx, next) => {
-  await ctx.render('bindPhone', {
-    title: 'Hello Koa 2!'
-  })
+router.post('/index.php/Lecture/Datas/sms', async (ctx, next) => {
+  ctx.body = {
+    code:"123456"
+  }
+})
+router.get('/bindphone', async (ctx, next) => {
+  await ctx.render('bindPhone')
 })
 
 

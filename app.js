@@ -31,7 +31,7 @@ app.use(require('koa-views')(__dirname + '/views', {
 
 // 便捷的测试框架 restc, 唯一的问题是无法区分路由,所有路由都变成了接口, 无法加载html模板
 if(process.env.NODE_ENV!='production'){
-  app.use(require('restc').koa2())
+  // app.use(require('restc').koa2())
 }
 
 
